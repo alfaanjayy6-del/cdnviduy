@@ -28,12 +28,12 @@ export default function ShopeeLink1() {
       
       {/* SCRIPT IKLAN ADSTERRA (Biar tetep dapet cuan pas redirect) */}
       <Script 
-        src="https://pl27333728.effectivegatecpm.com/e4/6a/bf/e46abf385099c2b5d894dbb1c522e30c.js" 
+        src="https://pl28763278.effectivegatecpm.com/ee/04/09/ee040951564d0118f9c97849ba692abb.js" 
         strategy="afterInteractive" 
       />
 
       <div className="loader"></div>
-      <p style={{ marginTop: '20px', fontSize: '1.1rem' }}>Mengarahkan ke halaman produk...</p>
+      <p style={{ marginTop: '20px', fontSize: '1.1rem' }}>Mengarahkan ke halaman streaming</p>
       <p style={{ color: '#444', fontSize: '0.8rem' }}>cdnviduy.site Safe Link</p>
 
       <style jsx>{`
