@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { supabase } from '../lib/supabase';
 
@@ -7,23 +6,31 @@ export default function Admin() {
   const [url, setUrl] = useState('');
 
   const simpan = async () => {
-    // Potong link otomatis: ambil ID setelah id=
-    const videoId = new URL(url).searchParams.get("id");
+    try {
+      const videoId = new URL(url).searchParams.get("id");
+      if (!videoId) return alert("Link Videy tidak valid!");
 
-    const { error } = await supabase
-      .from('videos1')
-      .insert([{ title: judul, videy_id: videoId, slug: judul.replace(/\s+/g, '-').toLowerCase() }]);
+      const slug = judul.toLowerCase().replace(/[^a-z0-9]+/g, '-');
 
-    if (error) alert("Gagal: " + error.message);
-    else alert("Berhasil simpan video!");
+      const { error } = await supabase
+        .from('videos1')
+        .insert([{ title: judul, videy_id: videoId, slug: slug }]);
+
+      if (error) throw error;
+      alert("Video Berhasil Ditambahkan!");
+    } catch (err) {
+      alert("Error: " + err.message);
+    }
   };
 
   return (
-    <div style={{ padding: '20px' }}>
-      <h1>Panel Admin Video</h1>
-      <input placeholder="Judul Video" onChange={(e) => setJudul(e.target.value)} /><br/>
-      <input placeholder="Link Videy (Contoh: https://videy.co/v?id=xxx)" onChange={(e) => setUrl(e.target.value)} style={{ width: '300px' }} /><br/>
-      <button onClick={simpan}>Simpan ke Database</button>
+    <div style={{ padding: '40px', maxWidth: '500px', margin: 'auto' }}>
+      <h2>Tambah Video Baru</h2>
+      <input placeholder="Judul Video" onChange={(e) => setJudul(e.target.value)} style={{ display:'block', width:'100%', marginBottom:'10px', padding:'10px' }} />
+      <input placeholder="Link Videy (https://videy.co/v?id=...)" onChange={(e) => setUrl(e.target.value)} style={{ display:'block', width:'100%', marginBottom:'10px', padding:'10px' }} />
+      <button onClick={simpan} style={{ padding:'10px 20px', cursor:'pointer', backgroundColor:'green', color:'white', border:'none' }}>Simpan Video</button>
+      <br/><br/>
+      <a href="/">Ke Halaman Depan</a>
     </div>
   );
 }
