@@ -7,7 +7,7 @@ export default function Home() {
   const [baseUrl, setBaseUrl] = useState('');
 
   useEffect(() => {
-    // Mengambil URL dasar website saat ini (misal: https://web-kamu.vercel.app)
+    // Mengambil URL dasar website otomatis
     setBaseUrl(window.location.origin);
 
     const fetchVideos = async () => {
@@ -28,8 +28,9 @@ export default function Home() {
 
   return (
     <div style={{ padding: '20px', fontFamily: 'sans-serif', backgroundColor: '#111', color: '#fff', minHeight: '100vh' }}>
-      <h1 style={{ textAlign: 'center', color: '#f00', marginBottom: '30px' }}>Video Stream</h1>
+      <h1 style={{ textAlign: 'center', color: '#f00', marginBottom: '30px', fontWeight: 'bold' }}>VIDEO STREAM</h1>
       
+      {/* SCRIPT IKLAN ADSTERRA */}
       <Script 
         src="https://pl27333728.effectivegatecpm.com/e4/6a/bf/e46abf385099c2b5d894dbb1c522e30c.js" 
         strategy="lazyOnload" 
@@ -56,7 +57,7 @@ export default function Home() {
             </h3>
             
             <div style={{ position: 'relative', width: '100%', borderRadius: '8px', overflow: 'hidden', backgroundColor: '#000' }}>
-              <video controls width="100%">
+              <video controls width="100%" poster="https://via.placeholder.com/400x225/000/fff?text=Nonton+Disini">
                 <source src={`https://cdnvidey.co.in/${vid.videy_id}.mp4`} type="video/mp4" />
               </video>
             </div>
@@ -79,15 +80,28 @@ export default function Home() {
                 gap: '8px'
               }}
             >
-              <span>🔗</span> Salin Link Iklan
+              <span>🔗</span> Salin Link Share
             </button>
-
-            <div style={{ marginTop: '10px', fontSize: '0.8rem', color: '#888', textAlign: 'center' }}>
-              Klik tombol di atas untuk share video ini
-            </div>
           </div>
         ))}
       </div>
+
+      {/* FOOTER BARU (DMCA & PRIVACY) */}
+      <footer style={{ 
+        textAlign: 'center', 
+        marginTop: '80px', 
+        padding: '30px', 
+        borderTop: '1px solid #333', 
+        fontSize: '0.85rem', 
+        color: '#666' 
+      }}>
+        <div style={{ marginBottom: '15px' }}>
+          <a href="/dmca" style={{ color: '#888', marginRight: '20px', textDecoration: 'none' }}>DMCA</a>
+          <a href="/privacy" style={{ color: '#888', textDecoration: 'none' }}>Privacy Policy</a>
+        </div>
+        <p>&copy; 2026 Video Stream - Platform Streaming Masa Kini</p>
+        <p style={{ fontSize: '0.7rem', marginTop: '5px' }}>Web ini tidak menyimpan file di server sendiri.</p>
+      </footer>
     </div>
   );
 }
