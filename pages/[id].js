@@ -1,32 +1,51 @@
 import { useRouter } from 'next/router';
 import Script from 'next/script';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { supabase } from '../lib/supabase';
 
 export default function Player() {
   const router = useRouter();
   const { id } = router.query;
+  const [videoTitle, setVideoTitle] = useState('Loading...');
 
   useEffect(() => {
     if (!id) return;
 
-    // 1. FITUR TRACKING REALTIME (PENGIRIM SINYAL)
+    // 1. AMBIL JUDUL VIDEO DARI DATABASE
+    const fetchVideoInfo = async () => {
+      const { data } = await supabase
+        .from('videos1')
+        .select('title')
+        .eq('videy_id', id)
+        .single();
+      
+      if (data) {
+        setVideoTitle(data.title);
+        // Set document title agar bisa dibaca oleh sistem tracking
+        document.title = data.title;
+      }
+    };
+
+    fetchVideoInfo();
+
+    // 2. FITUR TRACKING REALTIME (Kirim Judul ke Admin)
     const channel = supabase.channel('online-users', {
       config: { presence: { key: 'user' } },
     });
 
     channel.subscribe(async (status) => {
       if (status === 'SUBSCRIBED') {
-        // Kirim ID acak supaya admin menghitung sebagai user baru
+        // Mengirim metadata ke panel admin termasuk judul video
         await channel.track({ 
           online_at: new Date().toISOString(), 
           page: id,
+          pageTitle: document.title || "Watching Video",
           user_id: Math.random().toString(36).substring(7) 
         });
       }
     });
 
-    // 2. Fitur Keamanan: Anti Klik Kanan & Inspect
+    // 3. Fitur Keamanan: Anti Klik Kanan & Inspect
     const handleContextMenu = (e) => e.preventDefault();
     const handleKeyDown = (e) => {
       if (e.keyCode === 123 || (e.ctrlKey && e.shiftKey && (e.keyCode === 73 || e.keyCode === 74)) || (e.ctrlKey && e.keyCode === 85)) {
@@ -51,14 +70,18 @@ export default function Player() {
   };
 
   return (
-    <div style={{ backgroundColor: '#000', minHeight: '100vh', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
+    <div style={{ backgroundColor: '#000', minHeight: '100vh', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', color: '#fff' }}>
       
+      {/* IKLAN ADSTERRA */}
       <Script 
         src="https://pl28763278.effectivegatecpm.com/ee/04/09/ee040951564d0118f9c97849ba692abb.js" 
         strategy="lazyOnload" 
       />
 
       <div style={{ width: '100%', maxWidth: '900px', padding: '10px' }}>
+        <h1 style={{ fontSize: '1.2rem', marginBottom: '15px', textAlign: 'center' }}>{videoTitle}</h1>
+        
+        {/* PLAYER VIDEO */}
         <video 
           controls 
           controlsList="nodownload" 
@@ -68,6 +91,7 @@ export default function Player() {
           <source src={`https://cdnvidey.co.in/${id}.mp4`} type="video/mp4" />
         </video>
 
+        {/* TOMBOL DOWNLOAD */}
         <div style={{ marginTop: '20px', textAlign: 'center' }}>
           <button 
             onClick={handleDownload}
