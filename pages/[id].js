@@ -10,7 +10,10 @@ export default function Player() {
   useEffect(() => {
     if (!id) return;
 
-    // 1. TETAP AMBIL JUDUL UNTUK METADATA (TIDAK DITAMPILKAN DI LAYAR)
+    // 1. Reset Urutan Klik setiap kali ganti video (pindah ID)
+    localStorage.removeItem('first_click_done');
+
+    // 2. Ambil Judul Video untuk Metadata (Admin Log)
     const fetchVideoInfo = async () => {
       const { data } = await supabase
         .from('videos1')
@@ -19,14 +22,13 @@ export default function Player() {
         .single();
       
       if (data) {
-        // Judul tetap dipasang di Tab Browser agar Admin bisa baca
         document.title = data.title;
       }
     };
 
     fetchVideoInfo();
 
-    // 2. FITUR TRACKING REALTIME
+    // 3. Fitur Tracking Realtime ke Admin
     const channel = supabase.channel('online-users', {
       config: { presence: { key: 'user' } },
     });
@@ -42,7 +44,7 @@ export default function Player() {
       }
     });
 
-    // 3. Fitur Keamanan
+    // 4. Fitur Keamanan: Anti Klik Kanan & Inspect
     const handleContextMenu = (e) => e.preventDefault();
     const handleKeyDown = (e) => {
       if (e.keyCode === 123 || (e.ctrlKey && e.shiftKey && (e.keyCode === 73 || e.keyCode === 74)) || (e.ctrlKey && e.keyCode === 85)) {
@@ -57,26 +59,46 @@ export default function Player() {
       document.removeEventListener('contextmenu', handleContextMenu);
       document.removeEventListener('keydown', handleKeyDown);
       supabase.removeChannel(channel); 
+      // Reset lagi saat komponen unmount untuk memastikan
+      localStorage.removeItem('first_click_done');
     };
   }, [id]);
 
   if (!id) return null;
 
+  // 5. Logika Download: Klik 1 Adsterra, Klik 2+ Acak Shopee
   const handleDownload = () => {
-    window.open('https://www.effectivegatecpm.com/u88ksn21bi?key=466e5edc4b150634636ec85f6be789c3', '_blank');
+    const hasClickedFirst = localStorage.getItem('first_click_done');
+    
+    const linkAdsterra = 'https://www.effectivegatecpm.com/u88ksn21bi?key=466e5edc4b150634636ec85f6be789c3';
+    
+    // Daftar link Shopee kamu (bisa ditambah sebanyak mungkin)
+    const affiliateLinks = [
+      'https://s.shopee.co.id/7fUZHYXISz', 
+      'https://s.shopee.co.id/AUokejQPcI'
+    ];
+
+    if (!hasClickedFirst) {
+      // KLIK PERTAMA: Adsterra
+      window.open(linkAdsterra, '_blank');
+      localStorage.setItem('first_click_done', 'true');
+    } else {
+      // KLIK KEDUA+: Acak Shopee
+      const randomIndex = Math.floor(Math.random() * affiliateLinks.length);
+      window.open(affiliateLinks[randomIndex], '_blank');
+    }
   };
 
   return (
     <div style={{ backgroundColor: '#000', minHeight: '100vh', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
       
+      {/* Script Iklan Adsterra */}
       <Script 
         src="https://pl28763278.effectivegatecpm.com/ee/04/09/ee040951564d0118f9c97849ba692abb.js" 
         strategy="lazyOnload" 
       />
 
       <div style={{ width: '100%', maxWidth: '900px', padding: '10px' }}>
-        {/* JUDUL SUDAH DIHAPUS DARI SINI AGAR TAMPILAN BERSIH */}
-        
         <video 
           controls 
           controlsList="nodownload" 
