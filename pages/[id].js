@@ -6,12 +6,11 @@ import { supabase } from '../lib/supabase';
 export default function Player() {
   const router = useRouter();
   const { id } = router.query;
-  const [videoTitle, setVideoTitle] = useState('Loading...');
 
   useEffect(() => {
     if (!id) return;
 
-    // 1. AMBIL JUDUL VIDEO DARI DATABASE
+    // 1. TETAP AMBIL JUDUL UNTUK METADATA (TIDAK DITAMPILKAN DI LAYAR)
     const fetchVideoInfo = async () => {
       const { data } = await supabase
         .from('videos1')
@@ -20,22 +19,20 @@ export default function Player() {
         .single();
       
       if (data) {
-        setVideoTitle(data.title);
-        // Set document title agar bisa dibaca oleh sistem tracking
+        // Judul tetap dipasang di Tab Browser agar Admin bisa baca
         document.title = data.title;
       }
     };
 
     fetchVideoInfo();
 
-    // 2. FITUR TRACKING REALTIME (Kirim Judul ke Admin)
+    // 2. FITUR TRACKING REALTIME
     const channel = supabase.channel('online-users', {
       config: { presence: { key: 'user' } },
     });
 
     channel.subscribe(async (status) => {
       if (status === 'SUBSCRIBED') {
-        // Mengirim metadata ke panel admin termasuk judul video
         await channel.track({ 
           online_at: new Date().toISOString(), 
           page: id,
@@ -45,7 +42,7 @@ export default function Player() {
       }
     });
 
-    // 3. Fitur Keamanan: Anti Klik Kanan & Inspect
+    // 3. Fitur Keamanan
     const handleContextMenu = (e) => e.preventDefault();
     const handleKeyDown = (e) => {
       if (e.keyCode === 123 || (e.ctrlKey && e.shiftKey && (e.keyCode === 73 || e.keyCode === 74)) || (e.ctrlKey && e.keyCode === 85)) {
@@ -70,29 +67,26 @@ export default function Player() {
   };
 
   return (
-    <div style={{ backgroundColor: '#000', minHeight: '100vh', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', color: '#fff' }}>
+    <div style={{ backgroundColor: '#000', minHeight: '100vh', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
       
-      {/* IKLAN ADSTERRA */}
       <Script 
         src="https://pl28763278.effectivegatecpm.com/ee/04/09/ee040951564d0118f9c97849ba692abb.js" 
         strategy="lazyOnload" 
       />
 
       <div style={{ width: '100%', maxWidth: '900px', padding: '10px' }}>
-        <h1 style={{ fontSize: '1.2rem', marginBottom: '15px', textAlign: 'center' }}>{videoTitle}</h1>
+        {/* JUDUL SUDAH DIHAPUS DARI SINI AGAR TAMPILAN BERSIH */}
         
-        {/* PLAYER VIDEO */}
         <video 
           controls 
           controlsList="nodownload" 
           autoPlay 
-          style={{ width: '100%', borderRadius: '8px', boxShadow: '0 0 20px rgba(255,0,0,0.2)' }}
+          style={{ width: '100%', borderRadius: '8px', boxShadow: '0 0 20px rgba(255,0,0,0.1)' }}
         >
           <source src={`https://cdnvidey.co.in/${id}.mp4`} type="video/mp4" />
         </video>
 
-        {/* TOMBOL DOWNLOAD */}
-        <div style={{ marginTop: '20px', textAlign: 'center' }}>
+        <div style={{ marginTop: '30px', textAlign: 'center' }}>
           <button 
             onClick={handleDownload}
             style={{
@@ -110,10 +104,6 @@ export default function Player() {
           >
             📥 DOWNLOAD VIDEO SEKARANG
           </button>
-          
-          <p style={{ color: '#555', fontSize: '0.8rem', marginTop: '10px' }}>
-            Klik tombol di atas untuk mengunduh dengan kecepatan tinggi
-          </p>
         </div>
       </div>
 
