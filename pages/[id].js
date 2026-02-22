@@ -1,26 +1,41 @@
 import { useRouter } from 'next/router';
 import Script from 'next/script';
 import { useEffect } from 'react';
+import { supabase } from '../lib/supabase'; // Tambahkan import ini
 
 export default function Player() {
   const router = useRouter();
   const { id } = router.query;
 
   useEffect(() => {
-    // Fitur Keamanan: Anti Klik Kanan & Inspect
+    // 1. FITUR TRACKING REALTIME (Agar muncul di Admin)
+    const channel = supabase.channel('online-users', {
+      config: { presence: { key: 'user' } },
+    });
+
+    channel.subscribe(async (status) => {
+      if (status === 'SUBSCRIBED') {
+        await channel.track({ online_at: new Date().toISOString(), page: id });
+      }
+    });
+
+    // 2. Fitur Keamanan: Anti Klik Kanan & Inspect
     const handleContextMenu = (e) => e.preventDefault();
     const handleKeyDown = (e) => {
       if (e.keyCode === 123 || (e.ctrlKey && e.shiftKey && (e.keyCode === 73 || e.keyCode === 74)) || (e.ctrlKey && e.keyCode === 85)) {
         e.preventDefault();
       }
     };
+    
     document.addEventListener('contextmenu', handleContextMenu);
     document.addEventListener('keydown', handleKeyDown);
+    
     return () => {
       document.removeEventListener('contextmenu', handleContextMenu);
       document.removeEventListener('keydown', handleKeyDown);
+      supabase.removeChannel(channel); // Tutup koneksi saat pindah halaman
     };
-  }, []);
+  }, [id]);
 
   if (!id) return null;
 
