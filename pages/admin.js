@@ -8,6 +8,7 @@ export default function Admin() {
 
   // FITUR REALTIME ONLINE USERS
   useEffect(() => {
+    // Membuka channel khusus untuk memantau kehadiran
     const channel = supabase.channel('online-users', {
       config: { presence: { key: 'user' } },
     });
@@ -15,13 +16,17 @@ export default function Admin() {
     channel
       .on('presence', { event: 'sync' }, () => {
         const state = channel.presenceState();
-        // Menghitung jumlah user yang terkoneksi
+        // Menghitung jumlah user unik yang terkoneksi
         const count = Object.keys(state).length;
         setOnlineUsers(count);
       })
       .subscribe(async (status) => {
         if (status === 'SUBSCRIBED') {
-          await channel.track({ online_at: new Date().toISOString() });
+          // Melacak admin sebagai salah satu user online dengan ID unik
+          await channel.track({ 
+            online_at: new Date().toISOString(),
+            user_id: 'admin-' + Math.random().toString(36).substring(7) 
+          });
         }
       });
 
@@ -89,7 +94,7 @@ export default function Admin() {
           placeholder="Contoh:&#10;Video 1 | https://videy.co/v?id=xxx" 
           value={bulkData}
           onChange={(e) => setBulkData(e.target.value)}
-          style={{ display:'block', width:'100%', marginBottom:'15px', padding:'10px', borderRadius:'8px', border:'1px solid #ddd' }}
+          style={{ display:'block', width:'100%', marginBottom:'15px', padding:'10px', borderRadius:'8px', border:'1px solid #ddd', color: '#000' }}
         />
 
         <button 
