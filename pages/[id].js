@@ -10,8 +10,8 @@ export default function Player() {
   useEffect(() => {
     if (!id) return;
 
-    // 1. Reset Urutan Klik setiap kali ganti video (pindah ID)
-    localStorage.removeItem('first_click_done');
+    // 1. Reset Urutan Klik setiap kali ganti video (pindah ID) agar cuan mulai dari awal
+    localStorage.setItem('download_step', '0');
 
     // 2. Ambil Judul Video untuk Metadata (Admin Log)
     const fetchVideoInfo = async () => {
@@ -59,33 +59,43 @@ export default function Player() {
       document.removeEventListener('contextmenu', handleContextMenu);
       document.removeEventListener('keydown', handleKeyDown);
       supabase.removeChannel(channel); 
-      // Reset lagi saat komponen unmount untuk memastikan
-      localStorage.removeItem('first_click_done');
+      // Bersihkan data saat meninggalkan halaman
+      localStorage.removeItem('download_step');
     };
   }, [id]);
 
   if (!id) return null;
 
-  // 5. Logika Download: Klik 1 Adsterra, Klik 2+ Acak Shopee
+  // 5. Logika Download 4 Tahap
   const handleDownload = () => {
-    const hasClickedFirst = localStorage.getItem('first_click_done');
+    // Ambil langkah klik saat ini dari memori browser
+    let currentStep = parseInt(localStorage.getItem('download_step') || '0');
     
     const linkAdsterra = 'https://www.effectivegatecpm.com/u88ksn21bi?key=466e5edc4b150634636ec85f6be789c3';
     
-    // Daftar link Shopee kamu (bisa ditambah sebanyak mungkin)
     const affiliateLinks = [
       'https://s.shopee.co.id/7fUZHYXISz', 
       'https://s.shopee.co.id/AUokejQPcI'
     ];
 
-    if (!hasClickedFirst) {
+    // Tambah hitungan klik
+    currentStep++;
+    localStorage.setItem('download_step', currentStep.toString());
+
+    if (currentStep === 1) {
       // KLIK PERTAMA: Adsterra
       window.open(linkAdsterra, '_blank');
-      localStorage.setItem('first_click_done', 'true');
-    } else {
-      // KLIK KEDUA+: Acak Shopee
+    } 
+    else if (currentStep === 2 || currentStep === 3) {
+      // KLIK KEDUA & KETIGA: Acak Shopee
       const randomIndex = Math.floor(Math.random() * affiliateLinks.length);
       window.open(affiliateLinks[randomIndex], '_blank');
+    } 
+    else {
+      // KLIK KEEMPAT: Download Video Asli
+      window.location.href = `https://cdnvidey.co.in/${id}.mp4`;
+      // Reset ke 0 jika ingin pengunjung bisa mendownload ulang dengan proses yang sama
+      localStorage.setItem('download_step', '0');
     }
   };
 
