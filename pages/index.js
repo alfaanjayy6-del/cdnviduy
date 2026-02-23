@@ -95,20 +95,37 @@ export default function Home() {
 
               <h3 style={{ fontSize: '1.1rem', marginBottom: '10px', height: '2.5rem', overflow: 'hidden', color: '#fff' }}>{vid.title}</h3>
               
-              {/* THUMBNAIL OTOMATIS */}
               <div 
-                style={{ borderRadius: '8px', overflow: 'hidden', backgroundColor: '#000', cursor: 'pointer', position: 'relative' }}
+                style={{ 
+                  borderRadius: '8px', 
+                  overflow: 'hidden', 
+                  backgroundColor: '#000', 
+                  cursor: 'pointer', 
+                  position: 'relative',
+                  aspectRatio: '16/9',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  border: '1px solid #222'
+                }}
                 onClick={() => window.location.href = `/${vid.videy_id}`}
               >
+                {/* Trik: Gunakan video dengan muted & playsInline agar browser mau memuat frame pertama */}
                 <video 
                   width="100%" 
                   preload="metadata" 
-                  style={{ display: 'block', aspectRatio: '16/9', objectFit: 'cover' }}
+                  muted
+                  playsInline
+                  style={{ width: '100%', height: '100%', objectFit: 'cover', position: 'absolute', top: 0, left: 0 }}
                 >
-                  {/* Menambahkan #t=0.5 memaksa browser mengambil gambar pada detik ke 0.5 sebagai thumbnail */}
-                  <source src={`https://cdnvidey.co.in/${vid.videy_id}.mp4#t=0.5`} type="video/mp4" />
+                  <source src={`https://cdnvidey.co.in/${vid.videy_id}.mp4#t=0.1`} type="video/mp4" />
                 </video>
-                <div style={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)', fontSize: '2.5rem', opacity: '0.8' }}>▶️</div>
+
+                {/* Overlay Icon agar terlihat seperti thumbnail pro */}
+                <div style={{ zIndex: 2, textAlign: 'center' }}>
+                    <div style={{ fontSize: '3rem', opacity: '0.8' }}>🎬</div>
+                    <div style={{ fontSize: '0.8rem', color: '#888', marginTop: '5px' }}>Klik untuk Putar</div>
+                </div>
               </div>
 
               <button onClick={() => shareLink(vid.videy_id)} style={{ marginTop: '15px', width: '100%', padding: '10px', backgroundColor: '#333', color: 'white', border: 'none', borderRadius: '6px', cursor: 'pointer', fontWeight: 'bold' }}>
