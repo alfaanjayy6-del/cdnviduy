@@ -13,7 +13,6 @@ export default function Player() {
 
     // 1. DETEKSI ADBLOCK
     const checkAdBlock = async () => {
-      // Mencoba memanggil file yang biasanya diblokir oleh Adblock
       const googleAdUrl = 'https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js';
       try {
         await fetch(new Request(googleAdUrl, { mode: 'no-cors' }));
@@ -26,6 +25,7 @@ export default function Player() {
     checkAdBlock();
     localStorage.setItem('download_step', '0');
 
+    // 2. Metadata & Admin Tracking
     const fetchVideoInfo = async () => {
       const { data } = await supabase.from('videos1').select('title').eq('videy_id', id).single();
       if (data) document.title = data.title;
@@ -69,47 +69,124 @@ export default function Player() {
     }
   };
 
+  if (!id) return null;
+
   return (
-    <div style={{ backgroundColor: '#000', minHeight: '100vh', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', position: 'relative' }}>
-      
+    <div className="main-container">
+      {/* Script Iklan Adsterra */}
       <Script src="https://pl28763278.effectivegatecpm.com/ee/04/09/ee040951564d0118f9c97849ba692abb.js" strategy="lazyOnload" />
 
       {/* OVERLAY ANTI ADBLOCK */}
       {adBlockDetected && (
-        <div style={{
-          position: 'fixed', top: 0, left: 0, width: '100%', height: '100%',
-          backgroundColor: 'rgba(0,0,0,0.95)', zIndex: 9999,
-          display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
-          padding: '20px', textAlign: 'center'
-        }}>
-          <div style={{ fontSize: '4rem', marginBottom: '20px' }}>⚠️</div>
-          <h2 style={{ color: '#fff' }}>Adblock Terdeteksi!</h2>
-          <p style={{ color: '#ccc', maxWidth: '400px', lineHeight: '1.6' }}>
-            Maaf, untuk menonton video di website ini, harap **matikan Adblock** atau gunakan browser biasa. Iklan membantu kami menjaga server tetap aktif.
+        <div className="adblock-overlay">
+          <div style={{ fontSize: '4rem', marginBottom: '10px' }}>⚠️</div>
+          <h2 style={{ color: '#fff', margin: '10px 0' }}>Adblock Terdeteksi!</h2>
+          <p style={{ color: '#ccc', maxWidth: '350px', fontSize: '0.9rem', marginBottom: '20px' }}>
+            Harap **Matikan Adblock** atau gunakan browser biasa agar video bisa diputar. Iklan membantu kami tetap gratis!
           </p>
-          <button 
-            onClick={() => window.location.reload()}
-            style={{ marginTop: '20px', padding: '12px 25px', backgroundColor: '#ff0000', color: '#fff', border: 'none', borderRadius: '5px', fontWeight: 'bold', cursor: 'pointer' }}
-          >
-            SAYA SUDAH MATIKAN ADBLOCK
+          <button onClick={() => window.location.reload()} className="btn-reload">
+            SAYA SUDAH MATIKAN
           </button>
         </div>
       )}
 
-      <div style={{ width: '100%', maxWidth: '900px', padding: '10px', filter: adBlockDetected ? 'blur(10px)' : 'none' }}>
-        <video controls controlsList="nodownload" autoPlay style={{ width: '100%', borderRadius: '8px', boxShadow: '0 0 20px rgba(255,0,0,0.1)' }}>
+      {/* VIDEO PLAYER CONTAINER */}
+      <div className={`video-wrapper ${adBlockDetected ? 'blur' : ''}`}>
+        <video controls controlsList="nodownload" autoPlay className="video-element">
           <source src={`https://cdnvidey.co.in/${id}.mp4`} type="video/mp4" />
         </video>
 
         <div style={{ marginTop: '30px', textAlign: 'center' }}>
-          <button 
-            onClick={handleDownload}
-            style={{ padding: '15px 40px', fontSize: '1.1rem', backgroundColor: '#28a745', color: '#fff', border: 'none', borderRadius: '50px', cursor: 'pointer', fontWeight: 'bold' }}
-          >
+          <button onClick={handleDownload} className="btn-download">
             📥 DOWNLOAD VIDEO SEKARANG
           </button>
         </div>
       </div>
+
+      <style jsx global>{`
+        /* Menghilangkan semua sisa bingkai putih */
+        html, body {
+          margin: 0;
+          padding: 0;
+          background-color: #000 !important;
+          overflow-x: hidden;
+        }
+
+        .main-container {
+          background-color: #000;
+          min-height: 100vh;
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          justify-content: center;
+          padding: 0;
+          margin: 0;
+        }
+
+        .video-wrapper {
+          width: 100%;
+          max-width: 900px;
+          padding: 15px;
+          box-sizing: border-box;
+          transition: filter 0.3s;
+        }
+
+        .video-wrapper.blur {
+          filter: blur(15px);
+          pointer-events: none;
+        }
+
+        .video-element {
+          width: 100%;
+          border-radius: 8px;
+          box-shadow: 0 0 25px rgba(255,0,0,0.15);
+          outline: none;
+        }
+
+        .adblock-overlay {
+          position: fixed;
+          top: 0;
+          left: 0;
+          width: 100vw;
+          height: 100vh;
+          background-color: rgba(0,0,0,0.98);
+          z-index: 9999;
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          justify-content: center;
+          text-align: center;
+          font-family: sans-serif;
+        }
+
+        .btn-reload {
+          padding: 12px 30px;
+          background-color: #ff0000;
+          color: white;
+          border: none;
+          border-radius: 6px;
+          font-weight: bold;
+          cursor: pointer;
+        }
+
+        .btn-download {
+          padding: 15px 40px;
+          font-size: 1.1rem;
+          background-color: #28a745;
+          color: #fff;
+          border: none;
+          border-radius: 50px;
+          cursor: pointer;
+          font-weight: bold;
+          box-shadow: 0 4px 15px rgba(40, 167, 69, 0.4);
+          transition: 0.3s;
+        }
+
+        .btn-download:hover {
+          transform: scale(1.05);
+          background-color: #218838;
+        }
+      `}</style>
     </div>
   );
 }
