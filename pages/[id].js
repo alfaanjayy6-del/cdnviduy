@@ -11,7 +11,15 @@ export default function Player() {
   useEffect(() => {
     if (!id) return;
 
-    // 1. DETEKSI ADBLOCK (Versi Fetch yang kamu bilang berhasil)
+    // 1. FUNGSI UPDATE PENONTON HARIAN
+    const updateVisitorStats = async () => {
+      const today = new Date().toISOString().split('T')[0];
+      // Memanggil fungsi SQL increment_visitor yang kita buat di Supabase
+      await supabase.rpc('increment_visitor', { d_date: today });
+    };
+    updateVisitorStats();
+
+    // 2. DETEKSI ADBLOCK
     const checkAdBlock = async () => {
       const googleAdUrl = 'https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js';
       try {
@@ -21,11 +29,9 @@ export default function Player() {
         setAdBlockDetected(true);
       }
     };
-
     checkAdBlock();
-    localStorage.setItem('download_step', '0');
 
-    // 2. Ambil Judul & Tracking Admin
+    // 3. AMBIL DATA VIDEO & TRACKING ADMIN
     const fetchVideoInfo = async () => {
       const { data } = await supabase.from('videos1').select('title').eq('videy_id', id).single();
       if (data) document.title = data.title;
@@ -43,6 +49,8 @@ export default function Player() {
         });
       }
     });
+
+    localStorage.setItem('download_step', '0');
 
     return () => {
       supabase.removeChannel(channel); 
