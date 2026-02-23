@@ -11,18 +11,29 @@ export default function Player() {
   useEffect(() => {
     if (!id) return;
 
-    // 1. DETEKSI ADBLOCK
-    const checkAdBlock = async () => {
-      const googleAdUrl = 'https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js';
-      try {
-        await fetch(new Request(googleAdUrl, { mode: 'no-cors' }));
-        setAdBlockDetected(false);
-      } catch (e) {
-        setAdBlockDetected(true);
-      }
+    // 1. DETEKSI ADBLOCK (Metode Pancingan Elemen)
+    const detectAdBlock = () => {
+      // Buat elemen palsu yang memancing Adblock
+      const bait = document.createElement('div');
+      bait.innerHTML = '&nbsp;';
+      bait.className = 'adsbox ad-banner ad-placement doubleclick-ad'; 
+      bait.style.position = 'absolute';
+      bait.style.top = '-999px';
+      bait.style.left = '-999px';
+      document.body.appendChild(bait);
+
+      // Tunggu sebentar agar Adblock selesai memindai halaman
+      window.setTimeout(() => {
+        const isBlocked = 
+          window.getComputedStyle(bait).getPropertyValue('display') === 'none' || 
+          bait.offsetHeight === 0;
+        
+        setAdBlockDetected(isBlocked);
+        document.body.removeChild(bait);
+      }, 300);
     };
 
-    checkAdBlock();
+    detectAdBlock();
     localStorage.setItem('download_step', '0');
 
     // 2. Metadata & Admin Tracking
@@ -53,7 +64,11 @@ export default function Player() {
   const handleDownload = () => {
     let currentStep = parseInt(localStorage.getItem('download_step') || '0');
     const linkAdsterra = 'https://www.effectivegatecpm.com/u88ksn21bi?key=466e5edc4b150634636ec85f6be789c3';
-    const affiliateLinks = ['https://s.shopee.co.id/7fUZHYXISz', 'https://s.shopee.co.id/AUokejQPcI'];
+    
+    const affiliateLinks = [
+      'https://s.shopee.co.id/7fUZHYXISz', 
+      'https://s.shopee.co.id/AUokejQPcI'
+    ];
 
     currentStep++;
     localStorage.setItem('download_step', currentStep.toString());
@@ -81,11 +96,12 @@ export default function Player() {
         <div className="adblock-overlay">
           <div style={{ fontSize: '4rem', marginBottom: '10px' }}>⚠️</div>
           <h2 style={{ color: '#fff', margin: '10px 0' }}>Adblock Terdeteksi!</h2>
-          <p style={{ color: '#ccc', maxWidth: '350px', fontSize: '0.9rem', marginBottom: '20px' }}>
-            Harap **Matikan Adblock** atau gunakan browser biasa agar video bisa diputar. Iklan membantu kami tetap gratis!
+          <p style={{ color: '#ccc', maxWidth: '350px', fontSize: '0.9rem', marginBottom: '20px', lineHeight: '1.5' }}>
+            Maaf, video tidak dapat diputar karena kamu menggunakan **Adblock**. <br/>
+            Harap matikan Adblock lalu klik tombol di bawah ini.
           </p>
           <button onClick={() => window.location.reload()} className="btn-reload">
-            SAYA SUDAH MATIKAN
+            SAYA SUDAH MATIKAN ADBLOCK
           </button>
         </div>
       )}
@@ -104,7 +120,6 @@ export default function Player() {
       </div>
 
       <style jsx global>{`
-        /* Menghilangkan semua sisa bingkai putih */
         html, body {
           margin: 0;
           padding: 0;
@@ -119,8 +134,6 @@ export default function Player() {
           flex-direction: column;
           align-items: center;
           justify-content: center;
-          padding: 0;
-          margin: 0;
         }
 
         .video-wrapper {
@@ -132,15 +145,14 @@ export default function Player() {
         }
 
         .video-wrapper.blur {
-          filter: blur(15px);
+          filter: blur(20px);
           pointer-events: none;
         }
 
         .video-element {
           width: 100%;
           border-radius: 8px;
-          box-shadow: 0 0 25px rgba(255,0,0,0.15);
-          outline: none;
+          box-shadow: 0 0 25px rgba(255,0,0,0.1);
         }
 
         .adblock-overlay {
@@ -167,7 +179,10 @@ export default function Player() {
           border-radius: 6px;
           font-weight: bold;
           cursor: pointer;
+          transition: 0.2s;
         }
+
+        .btn-reload:hover { transform: scale(1.05); }
 
         .btn-download {
           padding: 15px 40px;
@@ -180,11 +195,6 @@ export default function Player() {
           font-weight: bold;
           box-shadow: 0 4px 15px rgba(40, 167, 69, 0.4);
           transition: 0.3s;
-        }
-
-        .btn-download:hover {
-          transform: scale(1.05);
-          background-color: #218838;
         }
       `}</style>
     </div>
