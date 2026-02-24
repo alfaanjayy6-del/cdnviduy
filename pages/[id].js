@@ -2,6 +2,7 @@ import { useRouter } from 'next/router';
 import Script from 'next/script';
 import { useEffect, useState } from 'react';
 import { supabase } from '../lib/supabase';
+import Link from 'next/link';
 
 export default function Player() {
   const router = useRouter();
@@ -14,7 +15,6 @@ export default function Player() {
     // 1. FUNGSI UPDATE PENONTON HARIAN
     const updateVisitorStats = async () => {
       const today = new Date().toISOString().split('T')[0];
-      // Memanggil fungsi SQL increment_visitor yang kita buat di Supabase
       await supabase.rpc('increment_visitor', { d_date: today });
     };
     updateVisitorStats();
@@ -81,7 +81,6 @@ export default function Player() {
 
   return (
     <div className="player-container">
-      {/* CSS GLOBAL UNTUK MENGHAPUS BINGKAI PUTIH */}
       <style jsx global>{`
         html, body {
           margin: 0 !important;
@@ -99,7 +98,6 @@ export default function Player() {
 
       <Script src="https://pl28763278.effectivegatecpm.com/ee/04/09/ee040951564d0118f9c97849ba692abb.js" strategy="lazyOnload" />
 
-      {/* OVERLAY ANTI ADBLOCK */}
       {adBlockDetected && (
         <div style={{
           position: 'fixed', top: 0, left: 0, width: '100vw', height: '100vh',
@@ -121,7 +119,6 @@ export default function Player() {
         </div>
       )}
 
-      {/* PLAYER CONTENT */}
       <div style={{ 
         width: '100%', 
         maxWidth: '900px', 
@@ -132,11 +129,32 @@ export default function Player() {
         alignItems: 'center',
         boxSizing: 'border-box'
       }}>
+        {/* TOMBOL KEMBALI KE BERANDA (DI ATAS VIDEO) */}
+        <div style={{ width: '100%', marginBottom: '15px', display: 'flex', justifyContent: 'flex-start' }}>
+          <Link href="/" style={{ textDecoration: 'none' }}>
+            <button style={{
+              backgroundColor: 'transparent',
+              color: '#888',
+              border: '1px solid #333',
+              padding: '8px 15px',
+              borderRadius: '8px',
+              cursor: 'pointer',
+              fontSize: '0.9rem',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '8px',
+              transition: '0.3s'
+            }} className="btn-home">
+              🏠 Kembali ke Beranda
+            </button>
+          </Link>
+        </div>
+
         <video controls controlsList="nodownload" autoPlay style={{ width: '100%', borderRadius: '8px', boxShadow: '0 0 25px rgba(255,0,0,0.15)' }}>
           <source src={`https://cdnvidey.co.in/${id}.mp4`} type="video/mp4" />
         </video>
 
-        <div style={{ marginTop: '35px', textAlign: 'center', width: '100%' }}>
+        <div style={{ marginTop: '30px', textAlign: 'center', width: '100%', display: 'flex', flexDirection: 'column', gap: '15px' }}>
           <button 
             onClick={handleDownload}
             style={{ 
@@ -154,6 +172,13 @@ export default function Player() {
           >
             📥 DOWNLOAD VIDEO SEKARANG
           </button>
+
+          {/* TOMBOL LANJUT NONTON (DI BAWAH TOMBOL DOWNLOAD) */}
+          <Link href="/" style={{ textDecoration: 'none' }}>
+            <span style={{ color: '#aaa', fontSize: '0.9rem', cursor: 'pointer', textDecoration: 'underline' }}>
+              Mau nonton video lainnya? Klik di sini
+            </span>
+          </Link>
         </div>
       </div>
 
@@ -168,6 +193,11 @@ export default function Player() {
           justify-content: center;
           margin: 0;
           padding: 0;
+        }
+        .btn-home:hover {
+          color: #fff !important;
+          border-color: #f00 !important;
+          background-color: #111 !important;
         }
       `}</style>
     </div>
