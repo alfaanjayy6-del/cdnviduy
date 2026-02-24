@@ -15,6 +15,7 @@ export default function Player() {
     // 1. FUNGSI UPDATE PENONTON HARIAN
     const updateVisitorStats = async () => {
       const today = new Date().toISOString().split('T')[0];
+      // Memanggil fungsi RPC increment_visitor di Supabase
       await supabase.rpc('increment_visitor', { d_date: today });
     };
     updateVisitorStats();
@@ -98,6 +99,7 @@ export default function Player() {
 
       <Script src="https://pl28763278.effectivegatecpm.com/ee/04/09/ee040951564d0118f9c97849ba692abb.js" strategy="lazyOnload" />
 
+      {/* OVERLAY ANTI ADBLOCK */}
       {adBlockDetected && (
         <div style={{
           position: 'fixed', top: 0, left: 0, width: '100vw', height: '100vh',
@@ -108,7 +110,7 @@ export default function Player() {
           <div style={{ fontSize: '4rem', marginBottom: '10px' }}>⚠️</div>
           <h2 style={{ color: '#fff', fontFamily: 'sans-serif' }}>Adblock Terdeteksi!</h2>
           <p style={{ color: '#ccc', maxWidth: '400px', lineHeight: '1.6', fontFamily: 'sans-serif' }}>
-            Maaf, video tidak bisa diputar. Harap **matikan Adblock** atau gunakan browser biasa agar kami bisa terus menyediakan layanan gratis.
+            Maaf, video tidak bisa diputar. Harap **matikan Adblock** agar kami bisa terus menyediakan layanan gratis.
           </p>
           <button 
             onClick={() => window.location.reload()}
@@ -150,11 +152,13 @@ export default function Player() {
           </Link>
         </div>
 
-        <video controls controlsList="nodownload" autoPlay style={{ width: '100%', borderRadius: '8px', boxShadow: '0 0 25px rgba(255,0,0,0.15)' }}>
+        {/* VIDEO PLAYER */}
+        <video controls controlsList="nodownload" autoPlay preload="auto" style={{ width: '100%', borderRadius: '8px', boxShadow: '0 0 25px rgba(255,0,0,0.15)' }}>
           <source src={`https://cdnvidey.co.in/${id}.mp4`} type="video/mp4" />
         </video>
 
         <div style={{ marginTop: '30px', textAlign: 'center', width: '100%', display: 'flex', flexDirection: 'column', gap: '15px' }}>
+          {/* TOMBOL DOWNLOAD */}
           <button 
             onClick={handleDownload}
             style={{ 
@@ -173,7 +177,7 @@ export default function Player() {
             📥 DOWNLOAD VIDEO SEKARANG
           </button>
 
-          {/* TOMBOL LANJUT NONTON (DI BAWAH TOMBOL DOWNLOAD) */}
+          {/* LINK LANJUT NONTON */}
           <Link href="/" style={{ textDecoration: 'none' }}>
             <span style={{ color: '#aaa', fontSize: '0.9rem', cursor: 'pointer', textDecoration: 'underline' }}>
               Mau nonton video lainnya? Klik di sini
