@@ -12,12 +12,12 @@ export default function Player() {
   useEffect(() => {
     if (!id) return;
 
-    // 1. UPDATE STATISTIK (PASTIKAN SQL DI SUPABASE SUDAH BENAR)
-    const updateStats = async () => {
+    // 1. FUNGSI UPDATE PENONTON HARIAN
+    const updateVisitorStats = async () => {
       const today = new Date().toISOString().split('T')[0];
       await supabase.rpc('increment_visitor', { d_date: today });
     };
-    updateStats();
+    updateVisitorStats();
 
     // 2. DETEKSI ADBLOCK
     const checkAdBlock = async () => {
@@ -31,15 +31,31 @@ export default function Player() {
     };
     checkAdBlock();
 
-    // 3. AMBIL DATA VIDEO
+    // 3. AMBIL DATA VIDEO & TRACKING ADMIN
     const fetchVideoInfo = async () => {
       const { data } = await supabase.from('videos1').select('title').eq('videy_id', id).single();
       if (data) document.title = data.title;
     };
     fetchVideoInfo();
 
+    const channel = supabase.channel('online-users', { config: { presence: { key: 'user' } } });
+    channel.subscribe(async (status) => {
+      if (status === 'SUBSCRIBED') {
+        await channel.track({ 
+          online_at: new Date().toISOString(), 
+          page: id,
+          pageTitle: document.title || "Watching Video",
+          user_id: Math.random().toString(36).substring(7) 
+        });
+      }
+    });
+
     localStorage.setItem('download_step', '0');
-    return () => { localStorage.removeItem('download_step'); };
+
+    return () => {
+      supabase.removeChannel(channel); 
+      localStorage.removeItem('download_step');
+    };
   }, [id]);
 
   const handleDownload = () => {
@@ -64,35 +80,126 @@ export default function Player() {
   if (!id) return null;
 
   return (
-    <div style={{ backgroundColor: '#000', minHeight: '100vh', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', color: '#fff' }}>
-      <style jsx global>{` body { margin: 0; background: #000; overflow-x: hidden; font-family: sans-serif; } `}</style>
-      
+    <div className="player-container">
+      <style jsx global>{`
+        html, body {
+          margin: 0 !important;
+          padding: 0 !important;
+          background-color: #000 !important;
+          width: 100%;
+          height: 100%;
+          overflow-x: hidden;
+        }
+        #__next {
+          background-color: #000;
+          min-height: 100vh;
+        }
+      `}</style>
+
       <Script src="https://pl28763278.effectivegatecpm.com/ee/04/09/ee040951564d0118f9c97849ba692abb.js" strategy="lazyOnload" />
 
       {adBlockDetected && (
-        <div style={{ position: 'fixed', top: 0, left: 0, width: '100%', height: '100%', backgroundColor: 'rgba(0,0,0,0.98)', zIndex: 9999, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', textAlign: 'center' }}>
-          <h2>⚠️ Matikan Adblock</h2>
-          <p>Harap matikan adblock untuk memutar video.</p>
-          <button onClick={() => window.location.reload()} style={{ padding: '10px 20px', background: '#f00', color: '#fff', border: 'none', borderRadius: '5px', cursor: 'pointer' }}>RELOAD</button>
+        <div style={{
+          position: 'fixed', top: 0, left: 0, width: '100vw', height: '100vh',
+          backgroundColor: 'rgba(0,0,0,0.98)', zIndex: 9999,
+          display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
+          padding: '20px', textAlign: 'center', boxSizing: 'border-box'
+        }}>
+          <div style={{ fontSize: '4rem', marginBottom: '10px' }}>⚠️</div>
+          <h2 style={{ color: '#fff', fontFamily: 'sans-serif' }}>Adblock Terdeteksi!</h2>
+          <p style={{ color: '#ccc', maxWidth: '400px', lineHeight: '1.6', fontFamily: 'sans-serif' }}>
+            Maaf, video tidak bisa diputar. Harap **matikan Adblock** atau gunakan browser biasa agar kami bisa terus menyediakan layanan gratis.
+          </p>
+          <button 
+            onClick={() => window.location.reload()}
+            style={{ marginTop: '20px', padding: '12px 25px', backgroundColor: '#ff0000', color: '#fff', border: 'none', borderRadius: '5px', fontWeight: 'bold', cursor: 'pointer' }}
+          >
+            SAYA SUDAH MATIKAN ADBLOCK
+          </button>
         </div>
       )}
 
-      <div style={{ width: '100%', maxWidth: '850px', padding: '15px' }}>
-        <div style={{ marginBottom: '15px' }}>
-          <Link href="/" style={{ color: '#888', textDecoration: 'none', border: '1px solid #333', padding: '5px 12px', borderRadius: '5px' }}>🏠 Beranda</Link>
+      <div style={{ 
+        width: '100%', 
+        maxWidth: '900px', 
+        padding: '15px', 
+        filter: adBlockDetected ? 'blur(15px)' : 'none',
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+        boxSizing: 'border-box'
+      }}>
+        {/* TOMBOL KEMBALI KE BERANDA (DI ATAS VIDEO) */}
+        <div style={{ width: '100%', marginBottom: '15px', display: 'flex', justifyContent: 'flex-start' }}>
+          <Link href="/" style={{ textDecoration: 'none' }}>
+            <button style={{
+              backgroundColor: 'transparent',
+              color: '#888',
+              border: '1px solid #333',
+              padding: '8px 15px',
+              borderRadius: '8px',
+              cursor: 'pointer',
+              fontSize: '0.9rem',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '8px',
+              transition: '0.3s'
+            }} className="btn-home">
+              🏠 Kembali ke Beranda
+            </button>
+          </Link>
         </div>
 
-        {/* Player dengan preload agar buffering lebih cepat */}
-        <video controls autoPlay preload="auto" style={{ width: '100%', borderRadius: '10px', boxShadow: '0 0 20px rgba(255,0,0,0.3)' }}>
+        <video controls controlsList="nodownload" autoPlay style={{ width: '100%', borderRadius: '8px', boxShadow: '0 0 25px rgba(255,0,0,0.15)' }}>
           <source src={`https://cdnvidey.co.in/${id}.mp4`} type="video/mp4" />
         </video>
 
-        <div style={{ marginTop: '30px', textAlign: 'center' }}>
-          <button onClick={handleDownload} style={{ padding: '15px 40px', background: '#28a745', color: '#fff', border: 'none', borderRadius: '50px', fontWeight: 'bold', cursor: 'pointer', boxShadow: '0 4px 15px rgba(40,167,69,0.4)' }}>
+        <div style={{ marginTop: '30px', textAlign: 'center', width: '100%', display: 'flex', flexDirection: 'column', gap: '15px' }}>
+          <button 
+            onClick={handleDownload}
+            style={{ 
+              padding: '16px 45px', 
+              fontSize: '1.1rem', 
+              backgroundColor: '#28a745', 
+              color: '#fff', 
+              border: 'none', 
+              borderRadius: '50px', 
+              cursor: 'pointer', 
+              fontWeight: 'bold',
+              boxShadow: '0 4px 15px rgba(40, 167, 69, 0.4)',
+              transition: '0.3s'
+            }}
+          >
             📥 DOWNLOAD VIDEO SEKARANG
           </button>
+
+          {/* TOMBOL LANJUT NONTON (DI BAWAH TOMBOL DOWNLOAD) */}
+          <Link href="/" style={{ textDecoration: 'none' }}>
+            <span style={{ color: '#aaa', fontSize: '0.9rem', cursor: 'pointer', textDecoration: 'underline' }}>
+              Mau nonton video lainnya? Klik di sini
+            </span>
+          </Link>
         </div>
       </div>
+
+      <style jsx>{`
+        .player-container {
+          background-color: #000;
+          min-height: 100vh;
+          width: 100%;
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          justify-content: center;
+          margin: 0;
+          padding: 0;
+        }
+        .btn-home:hover {
+          color: #fff !important;
+          border-color: #f00 !important;
+          background-color: #111 !important;
+        }
+      `}</style>
     </div>
   );
 }
