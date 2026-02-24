@@ -39,6 +39,7 @@ export default function Player() {
     };
     fetchVideoInfo();
 
+    // 4. REALTIME TRACKING UNTUK ADMIN PANEL
     const channel = supabase.channel('online-users', { config: { presence: { key: 'user' } } });
     channel.subscribe(async (status) => {
       if (status === 'SUBSCRIBED') {
@@ -97,6 +98,7 @@ export default function Player() {
         }
       `}</style>
 
+      {/* SCRIPT IKLAN ADSTERRA */}
       <Script src="https://pl28763278.effectivegatecpm.com/ee/04/09/ee040951564d0118f9c97849ba692abb.js" strategy="lazyOnload" />
 
       {/* OVERLAY ANTI ADBLOCK */}
@@ -131,7 +133,7 @@ export default function Player() {
         alignItems: 'center',
         boxSizing: 'border-box'
       }}>
-        {/* TOMBOL KEMBALI KE BERANDA (DI ATAS VIDEO) */}
+        {/* TOMBOL KEMBALI KE BERANDA */}
         <div style={{ width: '100%', marginBottom: '15px', display: 'flex', justifyContent: 'flex-start' }}>
           <Link href="/" style={{ textDecoration: 'none' }}>
             <button style={{
