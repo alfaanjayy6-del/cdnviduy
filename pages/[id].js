@@ -18,15 +18,6 @@ export default function Player() {
     };
     updateStats();
 
-    const checkAdBlock = async () => {
-      try {
-        await fetch(new Request('https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js', { mode: 'no-cors' }));
-      } catch (e) {
-        setAdBlockDetected(true);
-      }
-    };
-    checkAdBlock();
-
     const fetchInfo = async () => {
       const { data } = await supabase.from('videos1').select('title').eq('videy_id', id).single();
       if (data) document.title = data.title;
@@ -62,32 +53,26 @@ export default function Player() {
 
       <Script src="https://pl28763278.effectivegatecpm.com/ee/04/09/ee040951564d0118f9c97849ba692abb.js" strategy="lazyOnload" />
 
-      {adBlockDetected && (
-        <div style={{ position: 'fixed', top: 0, left: 0, width: '100%', height: '100%', backgroundColor: 'rgba(0,0,0,0.98)', zIndex: 9999, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', textAlign: 'center' }}>
-          <h2 style={{ color: '#fff' }}>⚠️ Matikan Adblock</h2>
-          <button onClick={() => window.location.reload()} style={{ padding: '10px 20px', background: '#f00', color: '#fff', border: 'none', borderRadius: '5px', cursor: 'pointer' }}>RELOAD</button>
-        </div>
-      )}
-
       <div style={{ width: '100%', maxWidth: '850px', padding: '15px' }}>
         <div style={{ marginBottom: '15px' }}>
           <Link href="/" style={{ color: '#888', textDecoration: 'none', border: '1px solid #333', padding: '5px 12px', borderRadius: '5px' }}>🏠 Beranda</Link>
         </div>
 
-        {/* PLAYER OPTIMASI: Tambah playsInline, muted, dan no-referrer */}
+        {/* PERBAIKAN UTAMA: Menggunakan kombinasi atribut untuk bypass block */}
         <video 
           controls 
           autoPlay 
-          muted 
-          playsInline 
-          preload="auto" 
-          style={{ width: '100%', borderRadius: '10px', boxShadow: '0 0 20px rgba(255,0,0,0.3)' }}
+          preload="metadata" 
+          playsInline
+          crossOrigin="anonymous"
+          style={{ width: '100%', borderRadius: '10px', backgroundColor: '#111', boxShadow: '0 0 20px rgba(255,0,0,0.3)' }}
         >
           <source 
             src={`https://cdnvidey.co.in/${id}.mp4`} 
             type="video/mp4" 
             referrerPolicy="no-referrer"
           />
+          Browser kamu tidak mendukung video player.
         </video>
 
         <div style={{ marginTop: '30px', textAlign: 'center' }}>
