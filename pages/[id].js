@@ -3,21 +3,23 @@ import Script from 'next/script';
 import { useEffect, useState } from 'react';
 import { supabase } from '../lib/supabase';
 import Link from 'next/link';
-import Head from 'next/head';
 
 export default function Player() {
   const router = useRouter();
   const { id } = router.query;
+  const [useIframe, setUseIframe] = useState(false);
 
   useEffect(() => {
     if (!id) return;
 
+    // 1. UPDATE STATISTIK
     const updateStats = async () => {
       const today = new Date().toISOString().split('T')[0];
       await supabase.rpc('increment_visitor', { d_date: today });
     };
     updateStats();
 
+    // 2. AMBIL JUDUL VIDEO
     const fetchInfo = async () => {
       const { data } = await supabase.from('videos1').select('title').eq('videy_id', id).single();
       if (data) document.title = data.title;
@@ -47,15 +49,11 @@ export default function Player() {
 
   return (
     <div style={{ backgroundColor: '#000', minHeight: '100vh', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
-      <Head>
-        {/* TRICK BYPASS UTAMA: Memaksa browser tidak mengirim identitas web kamu sama sekali */}
-        <meta name="referrer" content="no-referrer" />
-      </Head>
-
       <style jsx global>{`
         body { margin: 0; background: #000; font-family: sans-serif; overflow-x: hidden; }
       `}</style>
 
+      {/* Popunder Adsterra */}
       <Script src="https://pl28763278.effectivegatecpm.com/ee/04/09/ee040951564d0118f9c97849ba692abb.js" strategy="afterInteractive" />
 
       <div style={{ width: '100%', maxWidth: '900px', padding: '10px' }}>
@@ -63,23 +61,45 @@ export default function Player() {
           <Link href="/" style={{ color: '#888', textDecoration: 'none', border: '1px solid #333', padding: '8px 15px', borderRadius: '8px' }}>🏠 Beranda</Link>
         </div>
 
-        <div style={{ position: 'relative', width: '100%', borderRadius: '10px', overflow: 'hidden', backgroundColor: '#111', boxShadow: '0 0 25px rgba(255,0,0,0.4)' }}>
-          <video 
-            controls 
-            autoPlay 
-            preload="auto"
-            playsInline
-            style={{ width: '100%', display: 'block' }}
-          >
-            <source 
-              src={`https://cdnvidey.co.in/${id}.mp4`} 
-              type="video/mp4" 
-            />
-          </video>
+        <div style={{ position: 'relative', width: '100%', borderRadius: '10px', overflow: 'hidden', backgroundColor: '#111', boxShadow: '0 0 25px rgba(255,0,0,0.5)' }}>
+          
+          {!useIframe ? (
+            /* VERSI 1: PLAYER ASLI (AUTO DETEKSI BLOKIR) */
+            <video 
+              controls 
+              autoPlay 
+              preload="auto"
+              playsInline
+              style={{ width: '100%', display: 'block' }}
+              onError={() => {
+                console.log("Blokir dideteksi, pindah ke Iframe...");
+                setUseIframe(true);
+              }}
+            >
+              <source 
+                src={`https://cdnvidey.co.in/${id}.mp4`} 
+                type="video/mp4" 
+                referrerPolicy="no-referrer" 
+              />
+            </video>
+          ) : (
+            /* VERSI 2: IFRAME (AUTO FULLSCREEN FIX) */
+            <div style={{ paddingTop: '56.25%', position: 'relative' }}>
+              <iframe 
+                src={`https://videy.co/v?id=${id}`} 
+                style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', border: 'none' }}
+                allow="autoplay; fullscreen; picture-in-picture"
+                allowFullScreen={true}
+                webkitallowfullscreen="true"
+                mozallowfullscreen="true"
+              ></iframe>
+            </div>
+          )}
+
         </div>
 
         <div style={{ marginTop: '25px', textAlign: 'center' }}>
-          <button onClick={handleDownload} style={{ width: '100%', maxWidth: '400px', padding: '16px 20px', background: '#28a745', color: '#fff', border: 'none', borderRadius: '50px', fontWeight: 'bold', cursor: 'pointer', fontSize: '1.1rem' }}>
+          <button onClick={handleDownload} style={{ width: '100%', maxWidth: '400px', padding: '16px 20px', background: '#28a745', color: '#fff', border: 'none', borderRadius: '50px', fontWeight: 'bold', cursor: 'pointer', fontSize: '1.1rem', boxShadow: '0 4px 15px rgba(40,167,69,0.4)' }}>
             📥 DOWNLOAD VIDEO SEKARANG
           </button>
         </div>
