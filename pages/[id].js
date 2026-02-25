@@ -7,17 +7,18 @@ import Link from 'next/link';
 export default function Player() {
   const router = useRouter();
   const { id } = router.query;
-  const [adBlockDetected, setAdBlockDetected] = useState(false);
 
   useEffect(() => {
     if (!id) return;
 
+    // 1. UPDATE STATISTIK
     const updateStats = async () => {
       const today = new Date().toISOString().split('T')[0];
       await supabase.rpc('increment_visitor', { d_date: today });
     };
     updateStats();
 
+    // 2. AMBIL JUDUL
     const fetchInfo = async () => {
       const { data } = await supabase.from('videos1').select('title').eq('videy_id', id).single();
       if (data) document.title = data.title;
@@ -46,9 +47,9 @@ export default function Player() {
   if (!id) return null;
 
   return (
-    <div className="player-container" style={{ backgroundColor: '#000', minHeight: '100vh', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
+    <div style={{ backgroundColor: '#000', minHeight: '100vh', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
       <style jsx global>{`
-        body { margin: 0; background: #000; overflow: hidden; font-family: sans-serif; }
+        body { margin: 0; background: #000; font-family: sans-serif; }
       `}</style>
 
       <Script src="https://pl28763278.effectivegatecpm.com/ee/04/09/ee040951564d0118f9c97849ba692abb.js" strategy="lazyOnload" />
@@ -58,25 +59,18 @@ export default function Player() {
           <Link href="/" style={{ color: '#888', textDecoration: 'none', border: '1px solid #333', padding: '5px 12px', borderRadius: '5px' }}>🏠 Beranda</Link>
         </div>
 
-        {/* PERBAIKAN UTAMA: Menggunakan kombinasi atribut untuk bypass block */}
-        <video 
-          controls 
-          autoPlay 
-          preload="metadata" 
-          playsInline
-          crossOrigin="anonymous"
-          style={{ width: '100%', borderRadius: '10px', backgroundColor: '#111', boxShadow: '0 0 20px rgba(255,0,0,0.3)' }}
-        >
-          <source 
-            src={`https://cdnvidey.co.in/${id}.mp4`} 
-            type="video/mp4" 
+        {/* SOLUSI TERAKHIR: MENGGUNAKAN IFRAME AGAR TIDAK DIBLOKIR */}
+        <div style={{ position: 'relative', width: '100%', paddingTop: '56.25%', backgroundColor: '#111', borderRadius: '10px', overflow: 'hidden', boxShadow: '0 0 20px rgba(255,0,0,0.3)' }}>
+          <iframe 
+            src={`https://videy.co/v?id=${id}`} 
+            style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', border: 'none' }}
+            allowFullScreen
             referrerPolicy="no-referrer"
-          />
-          Browser kamu tidak mendukung video player.
-        </video>
+          ></iframe>
+        </div>
 
         <div style={{ marginTop: '30px', textAlign: 'center' }}>
-          <button onClick={handleDownload} style={{ padding: '15px 40px', background: '#28a745', color: '#fff', border: 'none', borderRadius: '50px', fontWeight: 'bold', cursor: 'pointer' }}>
+          <button onClick={handleDownload} style={{ padding: '15px 40px', background: '#28a745', color: '#fff', border: 'none', borderRadius: '50px', fontWeight: 'bold', cursor: 'pointer', boxShadow: '0 4px 15px rgba(40,167,69,0.4)' }}>
             📥 DOWNLOAD VIDEO SEKARANG
           </button>
         </div>
