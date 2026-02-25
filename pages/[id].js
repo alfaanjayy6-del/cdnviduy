@@ -12,7 +12,7 @@ export default function Player() {
   useEffect(() => {
     if (!id) return;
 
-    // 1. FUNGSI UPDATE PENONTON HARIAN
+    // 1. UPDATE STATISTIK HARIAN
     const updateVisitorStats = async () => {
       const today = new Date().toISOString().split('T')[0];
       await supabase.rpc('increment_visitor', { d_date: today });
@@ -108,7 +108,7 @@ export default function Player() {
           <div style={{ fontSize: '4rem', marginBottom: '10px' }}>⚠️</div>
           <h2 style={{ color: '#fff', fontFamily: 'sans-serif' }}>Adblock Terdeteksi!</h2>
           <p style={{ color: '#ccc', maxWidth: '400px', lineHeight: '1.6', fontFamily: 'sans-serif' }}>
-            Maaf, video tidak bisa diputar. Harap **matikan Adblock** atau gunakan browser biasa agar kami bisa terus menyediakan layanan gratis.
+            Maaf, video tidak bisa diputar. Harap **matikan Adblock** agar kami bisa terus menyediakan layanan gratis.
           </p>
           <button 
             onClick={() => window.location.reload()}
@@ -129,7 +129,7 @@ export default function Player() {
         alignItems: 'center',
         boxSizing: 'border-box'
       }}>
-        {/* TOMBOL KEMBALI KE BERANDA (DI ATAS VIDEO) */}
+        {/* TOMBOL KEMBALI KE BERANDA */}
         <div style={{ width: '100%', marginBottom: '15px', display: 'flex', justifyContent: 'flex-start' }}>
           <Link href="/" style={{ textDecoration: 'none' }}>
             <button style={{
@@ -150,7 +150,7 @@ export default function Player() {
           </Link>
         </div>
 
-        {/* VIDEO PLAYER DENGAN PRELOAD AUTO */}
+        {/* VIDEO PLAYER DENGAN REFERRER POLICY FIX */}
         <video 
           controls 
           controlsList="nodownload" 
@@ -158,7 +158,11 @@ export default function Player() {
           preload="auto" 
           style={{ width: '100%', borderRadius: '8px', boxShadow: '0 0 25px rgba(255,0,0,0.15)' }}
         >
-          <source src={`https://cdnvidey.co.in/${id}.mp4`} type="video/mp4" />
+          <source 
+            src={`https://cdnvidey.co.in/${id}.mp4`} 
+            type="video/mp4" 
+            referrerPolicy="no-referrer"
+          />
         </video>
 
         <div style={{ marginTop: '30px', textAlign: 'center', width: '100%', display: 'flex', flexDirection: 'column', gap: '15px' }}>
@@ -180,7 +184,6 @@ export default function Player() {
             📥 DOWNLOAD VIDEO SEKARANG
           </button>
 
-          {/* TOMBOL LANJUT NONTON (DI BAWAH TOMBOL DOWNLOAD) */}
           <Link href="/" style={{ textDecoration: 'none' }}>
             <span style={{ color: '#aaa', fontSize: '0.9rem', cursor: 'pointer', textDecoration: 'underline' }}>
               Mau nonton video lainnya? Klik di sini
