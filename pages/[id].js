@@ -1,25 +1,24 @@
 import { useRouter } from 'next/router';
 import Script from 'next/script';
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
 import { supabase } from '../lib/supabase';
 import Link from 'next/link';
 
 export default function Player() {
   const router = useRouter();
   const { id } = router.query;
-  const [useIframe, setUseIframe] = useState(false);
 
   useEffect(() => {
     if (!id) return;
 
-    // 1. UPDATE STATISTIK
+    // 1. UPDATE STATISTIK PENONTON
     const updateStats = async () => {
       const today = new Date().toISOString().split('T')[0];
       await supabase.rpc('increment_visitor', { d_date: today });
     };
     updateStats();
 
-    // 2. AMBIL JUDUL VIDEO
+    // 2. AMBIL JUDUL DARI DATABASE
     const fetchInfo = async () => {
       const { data } = await supabase.from('videos1').select('title').eq('videy_id', id).single();
       if (data) document.title = data.title;
@@ -40,7 +39,8 @@ export default function Player() {
       const links = ['https://s.shopee.co.id/7fUZHYXISz', 'https://s.shopee.co.id/AUokejQPcI'];
       window.open(links[Math.floor(Math.random() * links.length)], '_blank');
     } else {
-      window.location.href = `https://cdnvidey.co.in/${id}.mp4`;
+      // Link download tetap diarahkan ke file mp4 (pastikan ID-nya sesuai)
+      window.location.href = `https://vidubmy.site/d/${id}.mp4`;
       localStorage.setItem('download_step', '0');
     }
   };
@@ -53,55 +53,34 @@ export default function Player() {
         body { margin: 0; background: #000; font-family: sans-serif; overflow-x: hidden; }
       `}</style>
 
-      {/* Popunder Adsterra */}
+      {/* Popunder Adsterra tetap standby */}
       <Script src="https://pl28763278.effectivegatecpm.com/ee/04/09/ee040951564d0118f9c97849ba692abb.js" strategy="afterInteractive" />
 
-      <div style={{ width: '100%', maxWidth: '900px', padding: '10px' }}>
+      <div style={{ width: '100%', maxWidth: '900px', padding: '15px' }}>
         <div style={{ marginBottom: '15px' }}>
           <Link href="/" style={{ color: '#888', textDecoration: 'none', border: '1px solid #333', padding: '8px 15px', borderRadius: '8px' }}>🏠 Beranda</Link>
         </div>
 
-        <div style={{ position: 'relative', width: '100%', borderRadius: '10px', overflow: 'hidden', backgroundColor: '#111', boxShadow: '0 0 25px rgba(255,0,0,0.5)' }}>
-          
-          {!useIframe ? (
-            /* VERSI 1: PLAYER ASLI (AUTO DETEKSI BLOKIR) */
-            <video 
-              controls 
-              autoPlay 
-              preload="auto"
-              playsInline
-              style={{ width: '100%', display: 'block' }}
-              onError={() => {
-                console.log("Blokir dideteksi, pindah ke Iframe...");
-                setUseIframe(true);
-              }}
-            >
-              <source 
-                src={`https://cdnvidey.co.in/${id}.mp4`} 
-                type="video/mp4" 
-                referrerPolicy="no-referrer" 
-              />
-            </video>
-          ) : (
-            /* VERSI 2: IFRAME (AUTO FULLSCREEN FIX) */
-            <div style={{ paddingTop: '56.25%', position: 'relative' }}>
-              <iframe 
-                src={`https://videy.co/v?id=${id}`} 
-                style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', border: 'none' }}
-                allow="autoplay; fullscreen; picture-in-picture"
-                allowFullScreen={true}
-                webkitallowfullscreen="true"
-                mozallowfullscreen="true"
-              ></iframe>
-            </div>
-          )}
-
+        {/* CONTAINER EMBED VIDJOY */}
+        <div style={{ position: 'relative', width: '100%', paddingTop: '56.25%', backgroundColor: '#111', borderRadius: '12px', overflow: 'hidden', boxShadow: '0 10px 30px rgba(0,0,0,0.5)' }}>
+          <iframe 
+            src={`https://vidubmy.site/e/${id}`} 
+            style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', border: 'none' }}
+            allow="autoplay; fullscreen; picture-in-picture"
+            allowFullScreen={true}
+            webkitallowfullscreen="true"
+            mozallowfullscreen="true"
+          ></iframe>
         </div>
 
-        <div style={{ marginTop: '25px', textAlign: 'center' }}>
-          <button onClick={handleDownload} style={{ width: '100%', maxWidth: '400px', padding: '16px 20px', background: '#28a745', color: '#fff', border: 'none', borderRadius: '50px', fontWeight: 'bold', cursor: 'pointer', fontSize: '1.1rem', boxShadow: '0 4px 15px rgba(40,167,69,0.4)' }}>
+        <div style={{ marginTop: '30px', textAlign: 'center' }}>
+          <button onClick={handleDownload} style={{ width: '100%', maxWidth: '450px', padding: '18px 25px', background: '#28a745', color: '#fff', border: 'none', borderRadius: '50px', fontWeight: 'bold', cursor: 'pointer', fontSize: '1.1rem', boxShadow: '0 4px 15px rgba(40,167,69,0.4)' }}>
             📥 DOWNLOAD VIDEO SEKARANG
           </button>
+          
+          <div style={{ marginTop: '20px' }}>
+             <Link href="/" style={{ color: '#aaa', fontSize: '0.9rem', textDecoration: 'underline' }}>Mau nonton video lainnya? Klik di sini</Link>
+          </div>
         </div>
       </div>
     </div>
