@@ -12,14 +12,12 @@ export default function Player() {
   useEffect(() => {
     if (!id) return;
 
-    // 1. UPDATE STATISTIK
     const updateStats = async () => {
       const today = new Date().toISOString().split('T')[0];
       await supabase.rpc('increment_visitor', { d_date: today });
     };
     updateStats();
 
-    // 2. AMBIL JUDUL
     const fetchInfo = async () => {
       const { data } = await supabase.from('videos1').select('title').eq('videy_id', id).single();
       if (data) document.title = data.title;
@@ -53,24 +51,22 @@ export default function Player() {
         body { margin: 0; background: #000; font-family: sans-serif; overflow-x: hidden; }
       `}</style>
 
-      {/* SCRIPT ADSTERRA:afterInteractive agar popunder galak */}
       <Script src="https://pl28763278.effectivegatecpm.com/ee/04/09/ee040951564d0118f9c97849ba692abb.js" strategy="afterInteractive" />
 
-      <div style={{ width: '100%', maxWidth: '900px', padding: '15px' }}>
+      <div style={{ width: '100%', maxWidth: '900px', padding: '10px' }}>
         <div style={{ marginBottom: '15px' }}>
-          <Link href="/" style={{ color: '#888', textDecoration: 'none', border: '1px solid #333', padding: '8px 15px', borderRadius: '8px' }}>🏠 Beranda</Link>
+          <Link href="/" style={{ color: '#888', textDecoration: 'none', border: '1px solid #333', padding: '8px 15px', borderRadius: '8px', fontSize: '14px' }}>🏠 Beranda</Link>
         </div>
 
-        <div style={{ position: 'relative', width: '100%', borderRadius: '10px', overflow: 'hidden', backgroundColor: '#111', boxShadow: '0 0 25px rgba(255,0,0,0.2)' }}>
+        <div style={{ position: 'relative', width: '100%', borderRadius: '10px', overflow: 'hidden', backgroundColor: '#111', boxShadow: '0 0 25px rgba(255,0,0,0.3)' }}>
           
           {!useIframe ? (
-            /* VERSI 1: PLAYER ASLI (DENGAN DETEKSI ERROR) */
             <video 
               controls 
               autoPlay 
               preload="auto"
               style={{ width: '100%', display: 'block' }}
-              onError={() => setUseIframe(true)} // JIKA BLOKIR/EROR, PINDAH KE IFRAME
+              onError={() => setUseIframe(true)}
             >
               <source 
                 src={`https://cdnvidey.co.in/${id}.mp4`} 
@@ -79,25 +75,28 @@ export default function Player() {
               />
             </video>
           ) : (
-            /* VERSI 2: IFRAME (CADANGAN JIKA VERSI 1 DIBLOKIR) */
             <div style={{ paddingTop: '56.25%', position: 'relative' }}>
+              {/* PERBAIKAN: Menambahkan allow="fullscreen" agar tombol di HP bisa diklik */}
               <iframe 
                 src={`https://videy.co/v?id=${id}`} 
                 style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', border: 'none' }}
-                allowFullScreen
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share; fullscreen"
+                allowFullScreen={true}
+                webkitallowfullscreen="true"
+                mozallowfullscreen="true"
               ></iframe>
             </div>
           )}
 
         </div>
 
-        <div style={{ marginTop: '30px', textAlign: 'center' }}>
-          <button onClick={handleDownload} style={{ padding: '16px 45px', background: '#28a745', color: '#fff', border: 'none', borderRadius: '50px', fontWeight: 'bold', cursor: 'pointer', fontSize: '1.1rem', boxShadow: '0 4px 15px rgba(40,167,69,0.4)' }}>
+        <div style={{ marginTop: '25px', textAlign: 'center' }}>
+          <button onClick={handleDownload} style={{ width: '100%', maxWidth: '400px', padding: '16px 20px', background: '#28a745', color: '#fff', border: 'none', borderRadius: '50px', fontWeight: 'bold', cursor: 'pointer', fontSize: '1rem', boxShadow: '0 4px 15px rgba(40,167,69,0.4)' }}>
             📥 DOWNLOAD VIDEO SEKARANG
           </button>
           
           <div style={{ marginTop: '20px' }}>
-             <Link href="/" style={{ color: '#aaa', fontSize: '0.9rem', textDecoration: 'underline' }}>Mau nonton video lainnya? Klik di sini</Link>
+             <Link href="/" style={{ color: '#aaa', fontSize: '0.85rem', textDecoration: 'underline' }}>Mau nonton video lainnya? Klik di sini</Link>
           </div>
         </div>
       </div>
