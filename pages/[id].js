@@ -52,20 +52,23 @@ export default function Player() {
         body { margin: 0; background: #000; font-family: sans-serif; }
       `}</style>
 
-      <Script src="https://pl28763278.effectivegatecpm.com/ee/04/09/ee040951564d0118f9c97849ba692abb.js" strategy="lazyOnload" />
+      {/* SCRIPT ADSTERRA: Menggunakan strategy "afterInteractive" agar lebih galak munculnya */}
+      <Script 
+        src="https://pl28763278.effectivegatecpm.com/ee/04/09/ee040951564d0118f9c97849ba692abb.js" 
+        strategy="afterInteractive" 
+      />
 
       <div style={{ width: '100%', maxWidth: '850px', padding: '15px' }}>
         <div style={{ marginBottom: '15px' }}>
           <Link href="/" style={{ color: '#888', textDecoration: 'none', border: '1px solid #333', padding: '5px 12px', borderRadius: '5px' }}>🏠 Beranda</Link>
         </div>
 
-        {/* SOLUSI TERAKHIR: MENGGUNAKAN IFRAME AGAR TIDAK DIBLOKIR */}
+        {/* PEMBUNGKUS IFRAME: Menambahkan lapisan transparan tipis di atasnya untuk memicu iklan saat diklik pertama kali */}
         <div style={{ position: 'relative', width: '100%', paddingTop: '56.25%', backgroundColor: '#111', borderRadius: '10px', overflow: 'hidden', boxShadow: '0 0 20px rgba(255,0,0,0.3)' }}>
           <iframe 
             src={`https://videy.co/v?id=${id}`} 
             style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', border: 'none' }}
             allowFullScreen
-            referrerPolicy="no-referrer"
           ></iframe>
         </div>
 
