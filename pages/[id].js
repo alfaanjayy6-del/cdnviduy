@@ -3,11 +3,11 @@ import Script from 'next/script';
 import { useEffect, useState } from 'react';
 import { supabase } from '../lib/supabase';
 import Link from 'next/link';
+import Head from 'next/head';
 
 export default function Player() {
   const router = useRouter();
   const { id } = router.query;
-  const [useIframe, setUseIframe] = useState(false);
 
   useEffect(() => {
     if (!id) return;
@@ -47,6 +47,11 @@ export default function Player() {
 
   return (
     <div style={{ backgroundColor: '#000', minHeight: '100vh', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
+      <Head>
+        {/* TRICK BYPASS UTAMA: Memaksa browser tidak mengirim identitas web kamu sama sekali */}
+        <meta name="referrer" content="no-referrer" />
+      </Head>
+
       <style jsx global>{`
         body { margin: 0; background: #000; font-family: sans-serif; overflow-x: hidden; }
       `}</style>
@@ -55,49 +60,28 @@ export default function Player() {
 
       <div style={{ width: '100%', maxWidth: '900px', padding: '10px' }}>
         <div style={{ marginBottom: '15px' }}>
-          <Link href="/" style={{ color: '#888', textDecoration: 'none', border: '1px solid #333', padding: '8px 15px', borderRadius: '8px', fontSize: '14px' }}>🏠 Beranda</Link>
+          <Link href="/" style={{ color: '#888', textDecoration: 'none', border: '1px solid #333', padding: '8px 15px', borderRadius: '8px' }}>🏠 Beranda</Link>
         </div>
 
-        <div style={{ position: 'relative', width: '100%', borderRadius: '10px', overflow: 'hidden', backgroundColor: '#111', boxShadow: '0 0 25px rgba(255,0,0,0.3)' }}>
-          
-          {!useIframe ? (
-            <video 
-              controls 
-              autoPlay 
-              preload="auto"
-              style={{ width: '100%', display: 'block' }}
-              onError={() => setUseIframe(true)}
-            >
-              <source 
-                src={`https://cdnvidey.co.in/${id}.mp4`} 
-                type="video/mp4" 
-                referrerPolicy="no-referrer" 
-              />
-            </video>
-          ) : (
-            <div style={{ paddingTop: '56.25%', position: 'relative' }}>
-              {/* PERBAIKAN: Menambahkan allow="fullscreen" agar tombol di HP bisa diklik */}
-              <iframe 
-                src={`https://videy.co/v?id=${id}`} 
-                style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', border: 'none' }}
-                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share; fullscreen"
-                allowFullScreen={true}
-                webkitallowfullscreen="true"
-                mozallowfullscreen="true"
-              ></iframe>
-            </div>
-          )}
-
+        <div style={{ position: 'relative', width: '100%', borderRadius: '10px', overflow: 'hidden', backgroundColor: '#111', boxShadow: '0 0 25px rgba(255,0,0,0.4)' }}>
+          <video 
+            controls 
+            autoPlay 
+            preload="auto"
+            playsInline
+            style={{ width: '100%', display: 'block' }}
+          >
+            <source 
+              src={`https://cdnvidey.co.in/${id}.mp4`} 
+              type="video/mp4" 
+            />
+          </video>
         </div>
 
         <div style={{ marginTop: '25px', textAlign: 'center' }}>
-          <button onClick={handleDownload} style={{ width: '100%', maxWidth: '400px', padding: '16px 20px', background: '#28a745', color: '#fff', border: 'none', borderRadius: '50px', fontWeight: 'bold', cursor: 'pointer', fontSize: '1rem', boxShadow: '0 4px 15px rgba(40,167,69,0.4)' }}>
+          <button onClick={handleDownload} style={{ width: '100%', maxWidth: '400px', padding: '16px 20px', background: '#28a745', color: '#fff', border: 'none', borderRadius: '50px', fontWeight: 'bold', cursor: 'pointer', fontSize: '1.1rem' }}>
             📥 DOWNLOAD VIDEO SEKARANG
           </button>
-          
-          <div style={{ marginTop: '20px' }}>
-             <Link href="/" style={{ color: '#aaa', fontSize: '0.85rem', textDecoration: 'underline' }}>Mau nonton video lainnya? Klik di sini</Link>
-          </div>
         </div>
       </div>
     </div>
