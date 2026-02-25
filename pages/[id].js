@@ -150,7 +150,14 @@ export default function Player() {
           </Link>
         </div>
 
-        <video controls controlsList="nodownload" autoPlay style={{ width: '100%', borderRadius: '8px', boxShadow: '0 0 25px rgba(255,0,0,0.15)' }}>
+        {/* VIDEO PLAYER DENGAN PRELOAD AUTO */}
+        <video 
+          controls 
+          controlsList="nodownload" 
+          autoPlay 
+          preload="auto" 
+          style={{ width: '100%', borderRadius: '8px', boxShadow: '0 0 25px rgba(255,0,0,0.15)' }}
+        >
           <source src={`https://cdnvidey.co.in/${id}.mp4`} type="video/mp4" />
         </video>
 
