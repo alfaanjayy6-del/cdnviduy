@@ -63,7 +63,8 @@ export default function Player() {
       const links = ['https://s.shopee.co.id/7fUZHYXISz', 'https://s.shopee.co.id/AUokejQPcI'];
       window.open(links[Math.floor(Math.random() * links.length)], '_blank');
     } else {
-      window.location.href = `https://cdnvidey.co.in/${id}.mp4`;
+      // PERBAIKAN DOMAIN DOWNLOAD
+      window.location.href = `https://cdn.videy.co/${id}.mp4`;
       localStorage.setItem('download_step', '0');
     }
   };
@@ -87,7 +88,7 @@ export default function Player() {
         <div style={{ position: 'relative', width: '100%', borderRadius: '10px', overflow: 'hidden', backgroundColor: '#111', boxShadow: '0 0 25px rgba(255,0,0,0.5)' }}>
           
           {!useIframe ? (
-            /* VERSI 1: PLAYER ASLI (AUTO DETEKSI BLOKIR) */
+            /* VERSI 1: PLAYER ASLI (DOMAIN FIX: cdn.videy.co) */
             <video 
               controls 
               autoPlay 
@@ -100,13 +101,13 @@ export default function Player() {
               }}
             >
               <source 
-                src={`https://cdnvidey.co.in/${id}.mp4`} 
+                src={`https://cdn.videy.co/${id}.mp4`} 
                 type="video/mp4" 
                 referrerPolicy="no-referrer" 
               />
             </video>
           ) : (
-            /* VERSI 2: IFRAME (AUTO FULLSCREEN FIX) */
+            /* VERSI 2: IFRAME */
             <div style={{ paddingTop: '56.25%', position: 'relative' }}>
               <iframe 
                 src={`https://videy.co/v?id=${id}`} 
