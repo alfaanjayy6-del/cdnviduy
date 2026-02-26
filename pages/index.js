@@ -10,24 +10,7 @@ export default function Home() {
   useEffect(() => {
     setBaseUrl(window.location.origin);
     fetchVideos('terbaru');
-
-    const channel = supabase.channel('online-users', {
-      config: { presence: { key: 'user' } },
-    });
-
-    channel.subscribe(async (status) => {
-      if (status === 'SUBSCRIBED') {
-        await channel.track({ 
-          online_at: new Date().toISOString(), 
-          page: 'home',
-          pageTitle: 'Beranda'
-        });
-      }
-    });
-
-    return () => {
-      supabase.removeChannel(channel);
-    };
+    // Bagian Realtime Channel sudah dihapus total agar irit kuota
   }, []);
 
   const fetchVideos = async (tipe) => {
@@ -90,6 +73,7 @@ export default function Home() {
           />
         </div>
 
+        {/* Iklan Adsterra tetap jalan */}
         <Script src="https://pl28763278.effectivegatecpm.com/ee/04/09/ee040951564d0118f9c97849ba692abb.js" strategy="lazyOnload" />
 
         <div style={{ textAlign: 'center', marginBottom: '30px', display: 'flex', justifyContent: 'center', gap: '10px' }}>
@@ -119,7 +103,6 @@ export default function Home() {
                 }}
                 onClick={() => window.location.href = `/${vid.videy_id}`}
               >
-                {/* THUMBNAIL OTOMATIS: Preload metadata & t=0.5 agar cepat muncul */}
                 <video 
                   width="100%" 
                   preload="metadata" 
@@ -130,7 +113,6 @@ export default function Home() {
                   <source src={`https://cdn.videy.co/${vid.videy_id}.mp4#t=0.5`} type="video/mp4" />
                 </video>
 
-                {/* Overlay Play Icon */}
                 <div className="play-overlay" style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', zIndex: 2, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
                     <div style={{ fontSize: '3.5rem', textShadow: '0 0 20px rgba(0,0,0,0.8)' }}>▶️</div>
                 </div>
