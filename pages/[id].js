@@ -12,21 +12,44 @@ export default function Player() {
   useEffect(() => {
     if (!id) return;
 
-    // 1. UPDATE STATISTIK
+    // 1. UPDATE STATISTIK PENGUNJUNG
     const updateStats = async () => {
       const today = new Date().toISOString().split('T')[0];
       await supabase.rpc('increment_visitor', { d_date: today });
     };
     updateStats();
 
-    // 2. AMBIL JUDUL VIDEO
+    // 2. AMBIL JUDUL VIDEO & AKTIFKAN LIVE TRACKING
     const fetchInfo = async () => {
       const { data } = await supabase.from('videos1').select('title').eq('videy_id', id).single();
+      const pageTitle = data ? data.title : "Watching Video";
       if (data) document.title = data.title;
-    };
-    fetchInfo();
 
+      // --- FITUR LIVE ONLINE START ---
+      const channel = supabase.channel('online-users', {
+        config: { presence: { key: 'user' } }
+      });
+
+      channel.subscribe(async (status) => {
+        if (status === 'SUBSCRIBED') {
+          await channel.track({
+            online_at: new Date().toISOString(),
+            page: id,
+            pageTitle: pageTitle,
+            user_id: Math.random().toString(36).substring(7)
+          });
+        }
+      });
+
+      return () => {
+        supabase.removeChannel(channel);
+      };
+      // --- FITUR LIVE ONLINE END ---
+    };
+    
+    fetchInfo();
     localStorage.setItem('download_step', '0');
+
   }, [id]);
 
   const handleDownload = () => {
@@ -99,7 +122,7 @@ export default function Player() {
         </div>
 
         <div style={{ marginTop: '25px', textAlign: 'center' }}>
-          <button onClick={handleDownload} style={{ width: '100%', maxWidth: '400px', padding: '16px 20px', background: '#28a745', color: '#fff', border: 'none', borderRadius: '50px', fontWeight: 'bold', cursor: 'pointer', fontSize: '1.1rem', boxShadow: '0 4px 15px rgba(40,167,69,0.4)' }}>
+          <button onClick={handleDownload} style={{ width: '100%', maxWidth: '400px', padding: '16px 20px', background: '#28a745', color: '#fff', border: 'none', borderRadius: '50px', fontWeight: 'bold', cursor: 'pointer', fontSize: '1.1rem', boxShadow: '0 4px 15px rgba(40, 167, 69, 0.4)' }}>
             📥 DOWNLOAD VIDEO SEKARANG
           </button>
         </div>
