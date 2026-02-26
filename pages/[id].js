@@ -31,28 +31,10 @@ export default function Player() {
     };
     checkAdBlock();
 
-    // 3. AMBIL DATA VIDEO & TRACKING ADMIN
+    // 3. AMBIL DATA VIDEO (JUDUL) - Live Tracking dihapus biar irit
     const fetchVideoInfo = async () => {
       const { data } = await supabase.from('videos1').select('title').eq('videy_id', id).single();
-      const pageTitle = data ? data.title : "Watching Video";
       if (data) document.title = data.title;
-
-      // AKTIFKAN LIVE TRACKING SUPABASE
-      const channel = supabase.channel('online-users', { config: { presence: { key: 'user' } } });
-      channel.subscribe(async (status) => {
-        if (status === 'SUBSCRIBED') {
-          await channel.track({ 
-            online_at: new Date().toISOString(), 
-            page: id,
-            pageTitle: pageTitle,
-            user_id: Math.random().toString(36).substring(7) 
-          });
-        }
-      });
-
-      return () => {
-        supabase.removeChannel(channel);
-      };
     };
     
     fetchVideoInfo();
@@ -77,7 +59,6 @@ export default function Player() {
       const randomIndex = Math.floor(Math.random() * affiliateLinks.length);
       window.open(affiliateLinks[randomIndex], '_blank');
     } else {
-      // DOMAIN FIX: Menggunakan cdn.videy.co
       window.location.href = `https://cdn.videy.co/${id}.mp4`;
       localStorage.setItem('download_step', '0');
     }
@@ -135,7 +116,6 @@ export default function Player() {
         alignItems: 'center',
         boxSizing: 'border-box'
       }}>
-        {/* TOMBOL KEMBALI KE BERANDA */}
         <div style={{ width: '100%', marginBottom: '15px', display: 'flex', justifyContent: 'flex-start' }}>
           <Link href="/" style={{ textDecoration: 'none' }}>
             <button style={{
@@ -156,7 +136,6 @@ export default function Player() {
           </Link>
         </div>
 
-        {/* VIDEO PLAYER (DOMAIN FIX: cdn.videy.co + PRELOAD AUTO) */}
         <video 
           controls 
           controlsList="nodownload" 
@@ -201,8 +180,8 @@ export default function Player() {
           width: 100%;
           display: flex;
           flex-direction: column;
-          align-items: center;
-          justify-content: center;
+          alignItems: center;
+          justifyContent: center;
           margin: 0;
           padding: 0;
         }
