@@ -12,7 +12,7 @@ export default function Player() {
   useEffect(() => {
     if (!id) return;
 
-    // 1. FUNGSI UPDATE PENONTON HARIAN
+    // 1. UPDATE STATISTIK HARIAN (IRIT REQUEST)
     const updateVisitorStats = async () => {
       const today = new Date().toISOString().split('T')[0];
       await supabase.rpc('increment_visitor', { d_date: today });
@@ -31,7 +31,7 @@ export default function Player() {
     };
     checkAdBlock();
 
-    // 3. AMBIL DATA VIDEO (JUDUL) - Live Tracking dihapus biar irit
+    // 3. AMBIL JUDUL VIDEO
     const fetchVideoInfo = async () => {
       const { data } = await supabase.from('videos1').select('title').eq('videy_id', id).single();
       if (data) document.title = data.title;
@@ -67,19 +67,16 @@ export default function Player() {
   if (!id) return null;
 
   return (
-    <div className="player-container">
+    <div className="player-page">
       <style jsx global>{`
         html, body {
           margin: 0 !important;
           padding: 0 !important;
           background-color: #000 !important;
+          color: #fff;
           width: 100%;
-          height: 100%;
-          overflow-x: hidden;
-        }
-        #__next {
-          background-color: #000;
           min-height: 100vh;
+          overflow-x: hidden;
         }
       `}</style>
 
@@ -90,105 +87,136 @@ export default function Player() {
           position: 'fixed', top: 0, left: 0, width: '100vw', height: '100vh',
           backgroundColor: 'rgba(0,0,0,0.98)', zIndex: 9999,
           display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
-          padding: '20px', textAlign: 'center', boxSizing: 'border-box'
+          padding: '20px', textAlign: 'center'
         }}>
           <div style={{ fontSize: '4rem', marginBottom: '10px' }}>⚠️</div>
-          <h2 style={{ color: '#fff', fontFamily: 'sans-serif' }}>Adblock Terdeteksi!</h2>
-          <p style={{ color: '#ccc', maxWidth: '400px', lineHeight: '1.6', fontFamily: 'sans-serif' }}>
-            Maaf, video tidak bisa diputar. Harap **matikan Adblock** atau gunakan browser biasa agar kami bisa terus menyediakan layanan gratis.
+          <h2 style={{ fontFamily: 'sans-serif' }}>Adblock Terdeteksi!</h2>
+          <p style={{ color: '#ccc', maxWidth: '400px', lineHeight: '1.6' }}>
+            Harap **matikan Adblock** agar kami bisa terus menyediakan layanan gratis.
           </p>
           <button 
             onClick={() => window.location.reload()}
-            style={{ marginTop: '20px', padding: '12px 25px', backgroundColor: '#ff0000', color: '#fff', border: 'none', borderRadius: '5px', fontWeight: 'bold', cursor: 'pointer' }}
+            style={{ marginTop: '20px', padding: '12px 25px', backgroundColor: '#f00', color: '#fff', border: 'none', borderRadius: '5px', fontWeight: 'bold', cursor: 'pointer' }}
           >
             SAYA SUDAH MATIKAN ADBLOCK
           </button>
         </div>
       )}
 
-      <div style={{ 
-        width: '100%', 
-        maxWidth: '900px', 
-        padding: '15px', 
-        filter: adBlockDetected ? 'blur(15px)' : 'none',
-        display: 'flex',
-        flexDirection: 'column',
-        alignItems: 'center',
-        boxSizing: 'border-box'
-      }}>
-        <div style={{ width: '100%', marginBottom: '15px', display: 'flex', justifyContent: 'flex-start' }}>
+      <div className="content-wrapper" style={{ filter: adBlockDetected ? 'blur(15px)' : 'none' }}>
+        
+        {/* HEADER / BACK BUTTON */}
+        <div className="header">
           <Link href="/" style={{ textDecoration: 'none' }}>
-            <button style={{
-              backgroundColor: 'transparent',
-              color: '#888',
-              border: '1px solid #333',
-              padding: '8px 15px',
-              borderRadius: '8px',
-              cursor: 'pointer',
-              fontSize: '0.9rem',
-              display: 'flex',
-              alignItems: 'center',
-              gap: '8px',
-              transition: '0.3s'
-            }} className="btn-home">
-              🏠 Kembali ke Beranda
-            </button>
+            <button className="btn-back">🏠 Kembali ke Beranda</button>
           </Link>
         </div>
 
-        <video 
-          controls 
-          controlsList="nodownload" 
-          autoPlay 
-          preload="auto"
-          style={{ width: '100%', borderRadius: '8px', boxShadow: '0 0 25px rgba(255,0,0,0.15)' }}
-        >
-          <source src={`https://cdn.videy.co/${id}.mp4`} type="video/mp4" />
-        </video>
-
-        <div style={{ marginTop: '30px', textAlign: 'center', width: '100%', display: 'flex', flexDirection: 'column', gap: '15px' }}>
-          <button 
-            onClick={handleDownload}
-            style={{ 
-              padding: '16px 45px', 
-              fontSize: '1.1rem', 
-              backgroundColor: '#28a745', 
-              color: '#fff', 
-              border: 'none', 
-              borderRadius: '50px', 
-              cursor: 'pointer', 
-              fontWeight: 'bold',
-              boxShadow: '0 4px 15px rgba(40, 167, 69, 0.4)',
-              transition: '0.3s'
-            }}
+        {/* VIDEO PLAYER CONTAINER */}
+        <div className="video-container">
+          <video 
+            controls 
+            controlsList="nodownload" 
+            autoPlay 
+            preload="auto"
+            playsInline
           >
+            <source src={`https://cdn.videy.co/${id}.mp4`} type="video/mp4" />
+          </video>
+        </div>
+
+        {/* BUTTONS */}
+        <div className="actions">
+          <button onClick={handleDownload} className="btn-download">
             📥 DOWNLOAD VIDEO SEKARANG
           </button>
-
+          
           <Link href="/" style={{ textDecoration: 'none' }}>
-            <span style={{ color: '#aaa', fontSize: '0.9rem', cursor: 'pointer', textDecoration: 'underline' }}>
-              Mau nonton video lainnya? Klik di sini
-            </span>
+            <span className="link-more">Cari video lainnya di sini</span>
           </Link>
         </div>
+
       </div>
 
       <style jsx>{`
-        .player-container {
-          background-color: #000;
+        .player-page {
+          display: flex;
+          justify-content: center;
+          align-items: center;
           min-height: 100vh;
           width: 100%;
+          background-color: #000;
+        }
+        .content-wrapper {
+          width: 100%;
+          max-width: 850px;
+          padding: 20px;
           display: flex;
           flex-direction: column;
-          alignItems: center;
-          justifyContent: center;
-          margin: 0;
-          padding: 0;
+          align-items: center;
         }
-        .btn-home:hover {
-          color: #fff !important;
-          border-color: #f00 !important;
-          background-color: #111 !important;
+        .header {
+          width: 100%;
+          display: flex;
+          justify-content: flex-start;
+          margin-bottom: 15px;
+        }
+        .btn-back {
+          background: transparent;
+          color: #888;
+          border: 1px solid #333;
+          padding: 8px 16px;
+          border-radius: 8px;
+          cursor: pointer;
+          transition: 0.3s;
+        }
+        .btn-back:hover {
+          color: #fff;
+          border-color: #f00;
+        }
+        .video-container {
+          width: 100%;
+          background: #000;
+          border-radius: 12px;
+          overflow: hidden;
+          box-shadow: 0 10px 40px rgba(255, 0, 0, 0.1);
+          line-height: 0;
+        }
+        video {
+          width: 100%;
+          height: auto;
+          max-height: 75vh;
+        }
+        .actions {
+          margin-top: 30px;
+          text-align: center;
+          width: 100%;
+        }
+        .btn-download {
+          padding: 18px 40px;
+          font-size: 1.1rem;
+          background-color: #28a745;
+          color: #fff;
+          border: none;
+          border-radius: 50px;
+          font-weight: bold;
+          cursor: pointer;
+          width: 100%;
+          max-width: 400px;
+          box-shadow: 0 5px 20px rgba(40, 167, 69, 0.4);
+          transition: 0.3s;
+        }
+        .btn-download:hover {
+          transform: scale(1.05);
+          background-color: #218838;
+        }
+        .link-more {
+          display: block;
+          margin-top: 20px;
+          color: #666;
+          text-decoration: underline;
+          cursor: pointer;
+          font-size: 0.9rem;
         }
       `}</style>
     </div>
