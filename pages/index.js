@@ -90,7 +90,7 @@ export default function Home() {
             <div key={vid.id} style={{ border: '1px solid #333', padding: '15px', borderRadius: '12px', backgroundColor: '#1a1a1a', position: 'relative' }}>
               
               {isNew(vid.created_at) && (
-                <span style={{ position: 'absolute', top: '10px', right: '10px', backgroundColor: '#f00', color: '#fff', padding: '2px 8px', borderRadius: '5px', fontSize: '0.7rem', fontWeight: 'bold', zIndex: 1 }}> NEW </span>
+                <span style={{ position: 'absolute', top: '10px', right: '10px', backgroundColor: '#f00', color: '#fff', padding: '2px 8px', borderRadius: '5px', fontSize: '0.7rem', fontWeight: 'bold', zIndex: 3 }}> NEW </span>
               )}
 
               <h3 style={{ fontSize: '1.1rem', marginBottom: '10px', height: '2.5rem', overflow: 'hidden', color: '#fff' }}>{vid.title}</h3>
@@ -110,20 +110,20 @@ export default function Home() {
                 }}
                 onClick={() => window.location.href = `/${vid.videy_id}`}
               >
-                {/* Trik: Gunakan video dengan muted & playsInline agar browser mau memuat frame pertama */}
+                {/* FIX DOMAIN: Menggunakan cdn.videy.co agar sinkron dengan id.js */}
                 <video 
                   width="100%" 
                   preload="metadata" 
                   muted
                   playsInline
-                  style={{ width: '100%', height: '100%', objectFit: 'cover', position: 'absolute', top: 0, left: 0 }}
+                  style={{ width: '100%', height: '100%', objectFit: 'cover', position: 'absolute', top: 0, left: 0, zIndex: 1 }}
                 >
-                  <source src={`https://cdnvidey.co.in/${vid.videy_id}.mp4#t=0.1`} type="video/mp4" />
+                  <source src={`https://cdn.videy.co/${vid.videy_id}.mp4#t=0.1`} type="video/mp4" />
                 </video>
 
-                {/* Overlay Icon agar terlihat seperti thumbnail pro */}
-                <div style={{ zIndex: 2, textAlign: 'center' }}>
-                    <div style={{ fontSize: '3rem', opacity: '0.8' }}>🎬</div>
+                {/* Overlay Icon agar terlihat pro */}
+                <div style={{ zIndex: 2, textAlign: 'center', pointerEvents: 'none' }}>
+                    <div style={{ fontSize: '3rem', opacity: '0.6' }}>🎬</div>
                     <div style={{ fontSize: '0.8rem', color: '#888', marginTop: '5px' }}>Klik untuk Putar</div>
                 </div>
               </div>
