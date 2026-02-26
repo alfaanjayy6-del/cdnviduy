@@ -65,6 +65,18 @@ export default function Home() {
           color: #fff;
           overflow-x: hidden;
         }
+        .video-card:hover {
+          transform: translateY(-5px);
+          transition: 0.3s;
+          border-color: #f00 !important;
+        }
+        .play-overlay {
+          background: rgba(0,0,0,0.4);
+          transition: 0.3s;
+        }
+        .video-card:hover .play-overlay {
+          background: rgba(0,0,0,0.1);
+        }
       `}</style>
 
       <div style={{ padding: '20px', fontFamily: 'sans-serif', minHeight: '100vh', backgroundColor: '#000' }}>
@@ -81,23 +93,21 @@ export default function Home() {
         <Script src="https://pl28763278.effectivegatecpm.com/ee/04/09/ee040951564d0118f9c97849ba692abb.js" strategy="lazyOnload" />
 
         <div style={{ textAlign: 'center', marginBottom: '30px', display: 'flex', justifyContent: 'center', gap: '10px' }}>
-          <button onClick={() => fetchVideos('terbaru')} style={{ padding: '8px 15px', borderRadius: '20px', border: 'none', cursor: 'pointer', backgroundColor: filter === 'terbaru' ? '#f00' : '#333', color: '#fff', fontWeight: 'bold' }}> ✨ Terbaru </button>
-          <button onClick={() => fetchVideos('abjad')} style={{ padding: '8px 15px', borderRadius: '20px', border: 'none', cursor: 'pointer', backgroundColor: filter === 'abjad' ? '#f00' : '#333', color: '#fff', fontWeight: 'bold' }}> 🔠 A-Z </button>
+          <button onClick={() => fetchVideos('terbaru')} style={{ padding: '10px 20px', borderRadius: '25px', border: 'none', cursor: 'pointer', backgroundColor: filter === 'terbaru' ? '#f00' : '#222', color: '#fff', fontWeight: 'bold', transition: '0.3s' }}> ✨ Terbaru </button>
+          <button onClick={() => fetchVideos('abjad')} style={{ padding: '10px 20px', borderRadius: '25px', border: 'none', cursor: 'pointer', backgroundColor: filter === 'abjad' ? '#f00' : '#222', color: '#fff', fontWeight: 'bold', transition: '0.3s' }}> 🔠 A-Z </button>
         </div>
 
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: '20px', maxWidth: '1200px', margin: '0 auto' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: '20px', maxWidth: '1300px', margin: '0 auto' }}>
           {videos.map((vid) => (
-            <div key={vid.id} style={{ border: '1px solid #333', padding: '15px', borderRadius: '12px', backgroundColor: '#1a1a1a', position: 'relative' }}>
+            <div key={vid.id} className="video-card" style={{ border: '1px solid #222', padding: '12px', borderRadius: '15px', backgroundColor: '#0f0f0f', position: 'relative' }}>
               
               {isNew(vid.created_at) && (
-                <span style={{ position: 'absolute', top: '10px', right: '10px', backgroundColor: '#f00', color: '#fff', padding: '2px 8px', borderRadius: '5px', fontSize: '0.7rem', fontWeight: 'bold', zIndex: 3 }}> NEW </span>
+                <span style={{ position: 'absolute', top: '15px', left: '15px', backgroundColor: '#f00', color: '#fff', padding: '3px 10px', borderRadius: '6px', fontSize: '0.75rem', fontWeight: 'bold', zIndex: 10, boxShadow: '0 0 10px rgba(255,0,0,0.5)' }}> BARU </span>
               )}
 
-              <h3 style={{ fontSize: '1.1rem', marginBottom: '10px', height: '2.5rem', overflow: 'hidden', color: '#fff' }}>{vid.title}</h3>
-              
               <div 
                 style={{ 
-                  borderRadius: '8px', 
+                  borderRadius: '10px', 
                   overflow: 'hidden', 
                   backgroundColor: '#000', 
                   cursor: 'pointer', 
@@ -105,12 +115,11 @@ export default function Home() {
                   aspectRatio: '16/9',
                   display: 'flex',
                   alignItems: 'center',
-                  justifyContent: 'center',
-                  border: '1px solid #222'
+                  justifyContent: 'center'
                 }}
                 onClick={() => window.location.href = `/${vid.videy_id}`}
               >
-                {/* FIX DOMAIN: Menggunakan cdn.videy.co agar sinkron dengan id.js */}
+                {/* THUMBNAIL OTOMATIS: Preload metadata & t=0.5 agar cepat muncul */}
                 <video 
                   width="100%" 
                   preload="metadata" 
@@ -118,27 +127,30 @@ export default function Home() {
                   playsInline
                   style={{ width: '100%', height: '100%', objectFit: 'cover', position: 'absolute', top: 0, left: 0, zIndex: 1 }}
                 >
-                  <source src={`https://cdn.videy.co/${vid.videy_id}.mp4#t=0.1`} type="video/mp4" />
+                  <source src={`https://cdn.videy.co/${vid.videy_id}.mp4#t=0.5`} type="video/mp4" />
                 </video>
 
-                {/* Overlay Icon agar terlihat pro */}
-                <div style={{ zIndex: 2, textAlign: 'center', pointerEvents: 'none' }}>
-                    <div style={{ fontSize: '3rem', opacity: '0.6' }}>🎬</div>
-                    <div style={{ fontSize: '0.8rem', color: '#888', marginTop: '5px' }}>Klik untuk Putar</div>
+                {/* Overlay Play Icon */}
+                <div className="play-overlay" style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', zIndex: 2, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
+                    <div style={{ fontSize: '3.5rem', textShadow: '0 0 20px rgba(0,0,0,0.8)' }}>▶️</div>
                 </div>
               </div>
 
-              <button onClick={() => shareLink(vid.videy_id)} style={{ marginTop: '15px', width: '100%', padding: '10px', backgroundColor: '#333', color: 'white', border: 'none', borderRadius: '6px', cursor: 'pointer', fontWeight: 'bold' }}>
-                🔗 Salin Link Share
+              <h3 style={{ fontSize: '1rem', marginTop: '12px', marginBottom: '10px', height: '2.4rem', overflow: 'hidden', color: '#efefef', padding: '0 5px' }}>{vid.title}</h3>
+
+              <button onClick={() => shareLink(vid.videy_id)} style={{ width: '100%', padding: '12px', backgroundColor: '#1e1e1e', color: '#aaa', border: '1px solid #333', borderRadius: '10px', cursor: 'pointer', fontWeight: '600', fontSize: '0.85rem', transition: '0.3s' }}>
+                🔗 Salin Link
               </button>
             </div>
           ))}
         </div>
 
-        <footer style={{ textAlign: 'center', marginTop: '80px', padding: '30px', borderTop: '1px solid #333', fontSize: '0.85rem', color: '#666' }}>
-          <a href="/dmca" style={{ color: '#888', marginRight: '20px', textDecoration: 'none' }}>DMCA</a>
-          <a href="/privacy" style={{ color: '#888', textDecoration: 'none' }}>Privacy Policy</a>
-          <p>&copy; 2026 CDNVIDUY</p>
+        <footer style={{ textAlign: 'center', marginTop: '100px', padding: '40px', borderTop: '1px solid #111', fontSize: '0.85rem', color: '#444' }}>
+          <div style={{ marginBottom: '15px' }}>
+            <a href="/dmca" style={{ color: '#666', margin: '0 15px', textDecoration: 'none' }}>DMCA</a>
+            <a href="/privacy" style={{ color: '#666', margin: '0 15px', textDecoration: 'none' }}>Privacy Policy</a>
+          </div>
+          <p>&copy; 2026 CDNVIDUY | Streaming Video Cepat & Gratis</p>
         </footer>
       </div>
     </div>
