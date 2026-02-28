@@ -2,7 +2,6 @@ import { useState } from 'react';
 import { supabase } from '../lib/supabase';
 import Script from 'next/script';
 
-// 1. Ambil data di sisi Server (Hanya jalan sekali-kali, bukan tiap orang datang)
 export async function getStaticProps() {
   const { data: initialVideos } = await supabase
     .from('videos1')
@@ -10,10 +9,7 @@ export async function getStaticProps() {
     .order('created_at', { ascending: false });
 
   return {
-    props: {
-      initialVideos: initialVideos || [],
-    },
-    // REVALIDATE: Web cuma update data tiap 60 detik (Sangat menghemat Request!)
+    props: { initialVideos: initialVideos || [] },
     revalidate: 60, 
   };
 }
@@ -22,7 +18,6 @@ export default function Home({ initialVideos }) {
   const [videos, setVideos] = useState(initialVideos);
   const [filter, setFilter] = useState('terbaru');
 
-  // Fungsi filter di sisi client (Tanpa Request Database lagi kalau datanya sudah ada)
   const handleFilter = (tipe) => {
     setFilter(tipe);
     const sorted = [...videos];
@@ -34,68 +29,87 @@ export default function Home({ initialVideos }) {
     setVideos(sorted);
   };
 
-  const shareLink = (videy_id) => {
-    const fullLink = `${window.location.origin}/${videy_id}`;
-    navigator.clipboard.writeText(fullLink);
-    alert("Link Video Berhasil Disalin!");
-  };
-
-  const isNew = (timestamp) => {
-    const now = new Date();
-    const uploaded = new Date(timestamp);
-    const diffInHours = (now - uploaded) / (1000 * 60 * 60);
-    return diffInHours < 24;
-  };
-
   return (
     <div className="main-wrapper">
       <style jsx global>{`
         html, body {
-          margin: 0 !important;
-          padding: 0 !important;
-          background-color: #000 !important;
-          color: #fff;
-          overflow-x: hidden;
+          margin: 0; padding: 0;
+          background-color: #000; color: #fff;
+          font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
         }
-        .video-card:hover {
-          transform: translateY(-5px);
-          transition: 0.3s;
-          border-color: #f00 !important;
+        .video-grid {
+          display: grid;
+          grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+          gap: 12px;
+          padding: 15px;
+          max-width: 1200px;
+          margin: 0 auto;
+        }
+        @media (min-width: 768px) {
+          .video-grid { grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 20px; }
+        }
+        .video-card {
+          background: #111;
+          border-radius: 10px;
+          overflow: hidden;
+          border: 1px solid #222;
+        }
+        .thumb-container {
+          position: relative;
+          aspect-ratio: 16/9;
+          background: #000;
+          cursor: pointer;
+        }
+        .play-btn {
+          position: absolute;
+          top: 50%; left: 50%;
+          transform: translate(-50%, -50%);
+          font-size: 2.5rem;
+          z-index: 2;
+          opacity: 0.8;
         }
       `}</style>
 
-      <div style={{ padding: '20px', fontFamily: 'sans-serif', minHeight: '100vh', backgroundColor: '#000' }}>
-        
-        <div style={{ textAlign: 'center', marginBottom: '20px' }}>
-          <img src="/logo.png" alt="CDNVIDUY" style={{ maxWidth: '200px', cursor: 'pointer' }} onClick={() => window.location.href = '/'} />
+      <div style={{ paddingBottom: '50px' }}>
+        <div style={{ textAlign: 'center', padding: '20px 0' }}>
+          <img src="/logo.png" alt="Logo" style={{ height: '40px', cursor: 'pointer' }} onClick={() => window.location.href = '/'} />
         </div>
 
-        <Script src="https://pl28763278.effectivegatecpm.com/ee/04/09/ee040951564d0118f9c97849ba692abb.js" strategy="lazyOnload" />
+        <Script src="https://pl28763278.effectivegatecpm.com/ee/04/09/ee040951564d0118f9c97849ba692abb.js" strategy="afterInteractive" />
 
-        <div style={{ textAlign: 'center', marginBottom: '30px', display: 'flex', justifyContent: 'center', gap: '10px' }}>
-          <button onClick={() => handleFilter('terbaru')} style={{ padding: '10px 20px', borderRadius: '25px', border: 'none', cursor: 'pointer', backgroundColor: filter === 'terbaru' ? '#f00' : '#222', color: '#fff', fontWeight: 'bold' }}> ✨ Terbaru </button>
-          <button onClick={() => handleFilter('abjad')} style={{ padding: '10px 20px', borderRadius: '25px', border: 'none', cursor: 'pointer', backgroundColor: filter === 'abjad' ? '#f00' : '#222', color: '#fff', fontWeight: 'bold' }}> 🔠 A-Z </button>
+        <div style={{ display: 'flex', justifyContent: 'center', gap: '8px', marginBottom: '20px' }}>
+          <button onClick={() => handleFilter('terbaru')} style={{ padding: '8px 16px', borderRadius: '20px', border: 'none', background: filter === 'terbaru' ? '#f00' : '#222', color: '#fff', fontSize: '14px', fontWeight: 'bold' }}>Terbaru</button>
+          <button onClick={() => handleFilter('abjad')} style={{ padding: '8px 16px', borderRadius: '20px', border: 'none', background: filter === 'abjad' ? '#f00' : '#222', color: '#fff', fontSize: '14px', fontWeight: 'bold' }}>A-Z</button>
         </div>
 
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: '20px', maxWidth: '1300px', margin: '0 auto' }}>
+        <div className="video-grid">
           {videos.map((vid) => (
-            <div key={vid.id} className="video-card" style={{ border: '1px solid #222', padding: '12px', borderRadius: '15px', backgroundColor: '#0f0f0f', position: 'relative' }}>
-              {isNew(vid.created_at) && (
-                <span style={{ position: 'absolute', top: '15px', left: '15px', backgroundColor: '#f00', color: '#fff', padding: '3px 10px', borderRadius: '6px', fontSize: '0.75rem', fontWeight: 'bold', zIndex: 10 }}> BARU </span>
-              )}
-
-              <div style={{ borderRadius: '10px', overflow: 'hidden', backgroundColor: '#000', cursor: 'pointer', position: 'relative', aspectRatio: '16/9', display: 'flex', alignItems: 'center', justifyContent: 'center' }} onClick={() => window.location.href = `/${vid.videy_id}`}>
-                <video width="100%" preload="metadata" muted playsInline style={{ width: '100%', height: '100%', objectFit: 'cover', position: 'absolute', top: 0, left: 0 }}>
+            <div key={vid.id} className="video-card">
+              <div className="thumb-container" onClick={() => window.location.href = `/${vid.videy_id}`}>
+                {/* PRELOAD NONE: Rahasia agar web terasa ringan saat pertama dibuka */}
+                <video 
+                  width="100%" 
+                  preload="none" 
+                  poster={`https://cdn.videy.co/${vid.videy_id}.mp4#t=0.5`}
+                  style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                >
                   <source src={`https://cdn.videy.co/${vid.videy_id}.mp4#t=0.5`} type="video/mp4" />
                 </video>
-                <div style={{ position: 'absolute', zIndex: 2, fontSize: '3.5rem' }}>▶️</div>
+                <div className="play-btn">▶️</div>
               </div>
-
-              <h3 style={{ fontSize: '1rem', marginTop: '12px', marginBottom: '10px', height: '2.4rem', overflow: 'hidden', color: '#efefef' }}>{vid.title}</h3>
-
-              <button onClick={() => shareLink(vid.videy_id)} style={{ width: '100%', padding: '12px', backgroundColor: '#1e1e1e', color: '#aaa', border: '1px solid #333', borderRadius: '10px', cursor: 'pointer' }}>
-                🔗 Salin Link
-              </button>
+              <div style={{ padding: '10px' }}>
+                <h3 style={{ fontSize: '0.85rem', margin: '0 0 8px 0', height: '2.4rem', overflow: 'hidden', lineHeight: '1.2' }}>{vid.title}</h3>
+                <button 
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    navigator.clipboard.writeText(`${window.location.origin}/${vid.videy_id}`);
+                    alert("Salin Berhasil!");
+                  }} 
+                  style={{ width: '100%', background: '#222', color: '#ccc', border: 'none', padding: '6px', borderRadius: '5px', fontSize: '12px', cursor: 'pointer' }}
+                >
+                  🔗 Link
+                </button>
+              </div>
             </div>
           ))}
         </div>
