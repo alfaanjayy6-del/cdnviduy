@@ -12,14 +12,7 @@ export default function Player() {
   useEffect(() => {
     if (!id) return;
 
-    // 1. UPDATE STATISTIK HARIAN (IRIT REQUEST)
-    const updateVisitorStats = async () => {
-      const today = new Date().toISOString().split('T')[0];
-      await supabase.rpc('increment_visitor', { d_date: today });
-    };
-    updateVisitorStats();
-
-    // 2. DETEKSI ADBLOCK
+    // 1. DETEKSI ADBLOCK
     const checkAdBlock = async () => {
       const googleAdUrl = 'https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js';
       try {
@@ -31,7 +24,7 @@ export default function Player() {
     };
     checkAdBlock();
 
-    // 3. AMBIL JUDUL VIDEO
+    // 2. AMBIL JUDUL VIDEO SAJA (Tanpa simpan stats)
     const fetchVideoInfo = async () => {
       const { data } = await supabase.from('videos1').select('title').eq('videy_id', id).single();
       if (data) document.title = data.title;
@@ -80,7 +73,7 @@ export default function Player() {
         }
       `}</style>
 
-      <Script src="https://pl28763278.effectivegatecpm.com/ee/04/09/ee040951564d0118f9c97849ba692abb.js" strategy="lazyOnload" />
+      <Script src="https://pl28763278.effectivegatecpm.com/ee/04/09/ee040951564d0118f9c97849ba692abb.js" strategy="afterInteractive" />
 
       {adBlockDetected && (
         <div style={{
@@ -105,27 +98,24 @@ export default function Player() {
 
       <div className="content-wrapper" style={{ filter: adBlockDetected ? 'blur(15px)' : 'none' }}>
         
-        {/* HEADER / BACK BUTTON */}
         <div className="header">
           <Link href="/" style={{ textDecoration: 'none' }}>
             <button className="btn-back">🏠 Kembali ke Beranda</button>
           </Link>
         </div>
 
-        {/* VIDEO PLAYER CONTAINER */}
         <div className="video-container">
           <video 
             controls 
             controlsList="nodownload" 
             autoPlay 
-            preload="auto"
+            preload="metadata"
             playsInline
           >
             <source src={`https://cdn.videy.co/${id}.mp4`} type="video/mp4" />
           </video>
         </div>
 
-        {/* BUTTONS */}
         <div className="actions">
           <button onClick={handleDownload} className="btn-download">
             📥 DOWNLOAD VIDEO SEKARANG
@@ -186,6 +176,7 @@ export default function Player() {
           width: 100%;
           height: auto;
           max-height: 75vh;
+          background: #000;
         }
         .actions {
           margin-top: 30px;
